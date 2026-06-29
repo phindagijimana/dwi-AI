@@ -4,23 +4,34 @@ When a connectome is built via the standard
 
     labelconvert  aparc+aseg.nii.gz  FreeSurferColorLUT.txt  fs_default.txt  dk_nodes.mif
 
-the resulting label image carries the 1..84 node IDs in this fixed order. The
-``fs_default.txt`` file ships with MRtrix3; this module encodes its content so
-DK connectomes can be parsed without a copy of MRtrix3 on PATH.
+the resulting label image carries the 1..84 node IDs in this fixed order. This
+module encodes the ordering empirically verified against
+``MRtrix3 v3.0.4 fs_default.txt`` by overlaying a real ``dk_nodes.mif`` on
+its source ``aparc+aseg`` (see ``scripts/verify_dk_labels.py``).
 
 Layout (84 rows):
 
-    1..34   ctx-lh-<region>    (Desikan–Killiany cortical, alphabetical)
-    35..41  Left subcortical   (Thalamus-Proper, Caudate, Putamen, Pallidum,
-                                Hippocampus, Amygdala, Accumbens-area)
-    42      Brain-Stem
-    43..76  ctx-rh-<region>    (same cortical ordering as lh)
-    77..83  Right subcortical  (same ordering as left)
-    84      reserved / cerebellum-related slot in some releases
+    1..34    ctx-lh-<region>           (Desikan–Killiany cortical, alphabetical)
+    35       Left-Cerebellum-Cortex
+    36..42   Left subcortical          (Thalamus-Proper, Caudate, Putamen,
+                                        Pallidum, Hippocampus, Amygdala,
+                                        Accumbens-area)
+    43..49   Right subcortical         (same ordering as left)
+    50..83   ctx-rh-<region>           (same cortical ordering as lh)
+    84       Right-Cerebellum-Cortex
 
-Use :func:`build_node_lookup` to get a ``pd.DataFrame`` whose ``name`` column
-follows nodestrength's canonical L./R. convention (so the same connectome
-loader works for DK and Lausanne+THOMAS data).
+Note: ``Brain-Stem`` (FreeSurfer label 16) is **not** present in the
+84 nodes — labelconvert drops it. Earlier nodestrength releases assumed
+Brain-Stem at index 42; that assumption was wrong and produced
+mis-paired L/R asymmetry indices for every cortical region. The current
+ordering pairs L cortex node ``k`` (1..34) with R cortex node ``k + 49``
+(50..83), and L subcortical ``k`` (36..42) with R subcortical ``k + 7``
+(43..49).
+
+Use :func:`build_node_lookup` to get a ``pd.DataFrame`` whose ``name``
+column follows nodestrength's canonical ``L.<roi>`` / ``R.<roi>``
+convention so the same connectome loader works for DK and Lausanne+THOMAS
+data.
 """
 
 from __future__ import annotations
@@ -86,11 +97,15 @@ class DkNode:
     fs_default_index: int        # 1..84 — MRtrix3 fs_default.txt row
     name: str                    # canonical L.<roi> / R.<roi> / unpaired
     side: str                    # "L", "R", or ""
-    region_type: str             # "cortex" / "subcortical" / "brainstem" / "reserved"
+    region_type: str             # "cortex" / "subcortical" / "cerebellum"
 
 
 def build_dk_nodes() -> List[DkNode]:
-    """Return all 84 DK nodes in fs_default order."""
+    """Return all 84 DK nodes in fs_default order (empirically verified).
+
+    Cross-check on two real subjects (sub-001 and sub-TBI011011 from the
+    Gugger_Lab dwi_test2 cohort) showed full agreement with this ordering.
+    """
     nodes: List[DkNode] = []
     idx = 1
     # 1..34 -- left cortex
@@ -98,29 +113,29 @@ def build_dk_nodes() -> List[DkNode]:
         nodes.append(DkNode(fs_default_index=idx, name=f"L.{name}",
                             side="L", region_type="cortex"))
         idx += 1
-    # 35..41 -- left subcortical
+    # 35 -- left cerebellum cortex
+    nodes.append(DkNode(fs_default_index=idx, name="L.Cerebellum-Cortex",
+                        side="L", region_type="cerebellum"))
+    idx += 1
+    # 36..42 -- left subcortical
     for name in _SUBCORTICAL:
         nodes.append(DkNode(fs_default_index=idx, name=f"L.{name}",
                             side="L", region_type="subcortical"))
         idx += 1
-    # 42 -- Brain-Stem
-    nodes.append(DkNode(fs_default_index=idx, name="Brain-Stem",
-                        side="", region_type="brainstem"))
-    idx += 1
-    # 43..76 -- right cortex
-    for name in _CORTEX:
-        nodes.append(DkNode(fs_default_index=idx, name=f"R.{name}",
-                            side="R", region_type="cortex"))
-        idx += 1
-    # 77..83 -- right subcortical
+    # 43..49 -- right subcortical
     for name in _SUBCORTICAL:
         nodes.append(DkNode(fs_default_index=idx, name=f"R.{name}",
                             side="R", region_type="subcortical"))
         idx += 1
-    # 84 -- reserved (cerebellum / unused depending on MRtrix3 release).
-    # Treat as unpaired; AI computation skips it.
-    nodes.append(DkNode(fs_default_index=idx, name="unassigned-84",
-                        side="", region_type="reserved"))
+    # 50..83 -- right cortex
+    for name in _CORTEX:
+        nodes.append(DkNode(fs_default_index=idx, name=f"R.{name}",
+                            side="R", region_type="cortex"))
+        idx += 1
+    # 84 -- right cerebellum cortex
+    nodes.append(DkNode(fs_default_index=idx, name="R.Cerebellum-Cortex",
+                        side="R", region_type="cerebellum"))
+    idx += 1
     assert len(nodes) == 84, len(nodes)
     return nodes
 

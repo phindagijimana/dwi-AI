@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+build/
+dist/
+*.so
+
+# Demo / scratch outputs — regenerate from scripts when needed.
+scripts/outputs/
+
+# Large research PDF stays on disk but not in version control.
+*.pdf
+
+# Editor noise
+.vscode/
+.idea/
+*.swp
+.DS_Store

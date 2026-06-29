@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nodestrength"
+version = "0.1.0"
+description = "Reimplementation of Piper et al. 2026 (Epilepsia) thalamocortical structural-connectivity pipeline."
+readme = "node.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "numpy>=1.23",
+    "pandas>=1.5",
+    "scipy>=1.10",
+    "nibabel>=5.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+bct = ["bctpy>=0.5"]
+
+[project.scripts]
+nodestrength = "nodestrength.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["nodestrength*"]
+exclude = ["tests*", "scripts*"]

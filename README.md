@@ -36,10 +36,12 @@ Runtime deps: `numpy`, `pandas`, `scipy`, `nibabel`. Optional: `bctpy` (enables 
 ```bash
 python scripts/run_dk_ai_cohort.py \
     --root /path/to/dk_connectomes \
-    --out  /path/to/AI_results
+    --out  /path/to/node_strength_results
 ```
 
 Per-subject and cohort CSVs for node strength + AI land in `--out`.
+See **`nodestrength.md` §12** for full documentation of `sub-XXX_strength.csv`
+and `sub-XXX_ai.csv` (definitions, sources, interpretation, limitations).
 
 ### B. IDEAS II pre-processed archive
 
@@ -89,6 +91,9 @@ nodestrength/
   cli.py           CLI entry points
 scripts/           cohort runners + DK label verifier
 tests/             pytest suite
+paper.md           Piper et al. 2026 — summary and key ideas
+BCT.md             Brain Connectivity Toolbox reference
+node.md            Extended paper notes and cohort runbooks
 ```
 
 ## Details and caveats
@@ -98,3 +103,24 @@ See [`node.md`](node.md) for the paper summary, formula derivations, dataset run
 ## License
 
 MIT.
+
+## New scripts (usage)
+
+Fit and save a normative model from controls:
+
+```bash
+python scripts/fit_normative_model.py --controls controls_long.csv --target strength --out strength_model.pkl
+```
+
+Score a directory of connectomes (per-subject `connectome.csv` + `node_lookup.tsv`):
+
+```bash
+python scripts/score_connectomes.py --root /path/to/derivatives --out /path/to/out --covariates covariates.csv --model strength_model.pkl
+```
+
+Run permutation diagnostics on a cohort long file:
+
+```bash
+python scripts/run_diagnostics.py --cohort /path/to/out/cohort_long.csv --out /path/to/out/diagnostics --effect group
+```
+

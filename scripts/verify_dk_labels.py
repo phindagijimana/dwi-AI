@@ -17,7 +17,7 @@ Run:
 
     python scripts/verify_dk_labels.py \
         --subject /mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes/sub-001 \
-        --out /mnt/nfs/.../AI_results/empirical_lut.csv
+        --out /mnt/nfs/.../node_strength_results/empirical_lut.csv
 """
 
 from __future__ import annotations

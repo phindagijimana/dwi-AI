@@ -18,6 +18,7 @@ Per-nucleus and per-side (R-side patients z-scored vs R-side controls, etc.).
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List, Mapping, Sequence, Tuple
 
 import numpy as np
@@ -140,3 +141,23 @@ def fit_strength_model(controls_long: pd.DataFrame,
 def fit_volume_model(controls_long: pd.DataFrame,
                      covariates: Sequence[str] = VOLUME_COVARIATES) -> NormativeModel:
     return NormativeModel(target="volume_mm3", covariates=tuple(covariates)).fit(controls_long)
+
+
+def save_model(path: str | Path, model: NormativeModel) -> None:
+    """Save a fitted `NormativeModel` to disk using pickle."""
+    import pickle
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    with p.open("wb") as fh:
+        pickle.dump(model, fh)
+
+
+def load_model(path: str | Path) -> NormativeModel:
+    """Load a previously saved `NormativeModel` from disk."""
+    import pickle
+    p = Path(path)
+    with p.open("rb") as fh:
+        obj = pickle.load(fh)
+    if not isinstance(obj, NormativeModel):
+        raise TypeError("Loaded object is not a NormativeModel")
+    return obj

@@ -290,15 +290,32 @@ Cohort-level artefacts (analysis layer):
 ### 6.1 DK cohort outputs (`run_dk_ai_cohort.py`)
 
 Written to `node_strength_results/` (see **§12** for full methodology, sources,
-and interpretation of the two core per-subject files):
+and interpretation). Outputs are grouped by modality:
+
+```
+node_strength_results/
+├── strength/          # connectivity (always)
+│   ├── per_subject/
+│   ├── node_strength_cohort.csv
+│   ├── asymmetry_index_cohort.csv
+│   └── cohort_summary.csv
+├── volume/            # optional (--with-volume-ai)
+│   ├── per_subject/
+│   └── … cohort volume tables
+└── compare/           # optional (--with-volume-ai)
+    └── strength_vs_volume_ai.csv
+```
 
 | File | Contents |
 |---|---|
-| `per_subject/sub-XXX_strength.csv` | 84 nodes × strength (see §12.1) |
-| `per_subject/sub-XXX_ai.csv` | 41 L/R pairs × interhemispheric AI (see §12.2) |
-| `node_strength_cohort.csv` | Cohort stack of all `_strength.csv` files |
-| `asymmetry_index_cohort.csv` | Cohort stack of all `_ai.csv` files |
-| `cohort_summary.csv` | Per-ROI mean/SD of `side_ai` and `log_ai` |
+| `strength/per_subject/sub-XXX_strength.csv` | 84 nodes × strength (see §12.1) |
+| `strength/per_subject/sub-XXX_ai.csv` | 42 L/R pairs × interhemispheric AI (see §12.2) |
+| `strength/node_strength_cohort.csv` | Cohort stack of all `_strength.csv` files |
+| `strength/asymmetry_index_cohort.csv` | Cohort stack of all `_ai.csv` files |
+| `strength/cohort_summary.csv` | Per-ROI mean/SD of strength `side_ai` and `log_ai` |
+| `volume/per_subject/sub-XXX_volume.csv` | 84 nodes × volume_mm3 *(with `--with-volume-ai`)* |
+| `volume/per_subject/sub-XXX_volume_ai.csv` | 42 pairs × volume AI *(with `--with-volume-ai`)* |
+| `compare/strength_vs_volume_ai.csv` | Side-by-side strength vs volume AI *(with `--with-volume-ai`)* |
 | `manifest.json` | Run metadata, atlas info, warnings |
 | `README.md` | Auto-generated summary (regenerated each run) |
 | `nodestrength.docx` | Full pipeline documentation (copy for end users; see §11.2) |
@@ -313,20 +330,23 @@ python scripts/run_dk_ai_cohort.py \
     --out  /path/to/node_strength_results
 ```
 
-Produces under `node_strength_results/`:
+Produces under `node_strength_results/` (strength only by default):
 
 ```
 node_strength_results/
 ├── README.md
 ├── nodestrength.docx              full pipeline documentation
 ├── manifest.json
-├── node_strength_cohort.csv       84 nodes × N subjects
-├── asymmetry_index_cohort.csv     41 L/R pairs × N subjects
-├── cohort_summary.csv             per-ROI cohort means + SDs
-└── per_subject/
-    ├── sub-XXX_strength.csv
-    └── sub-XXX_ai.csv
+└── strength/
+    ├── node_strength_cohort.csv       84 nodes × N subjects
+    ├── asymmetry_index_cohort.csv     42 L/R pairs × N subjects
+    ├── cohort_summary.csv             per-ROI cohort means + SDs
+    └── per_subject/
+        ├── sub-XXX_strength.csv
+        └── sub-XXX_ai.csv
 ```
+
+With `--with-volume-ai`, also creates `volume/` and `compare/` (see §11.2).
 
 The DK label ordering is encoded in `nodestrength.dk_atlas` and was empirically verified against real `dk_nodes.mif` files via `scripts/verify_dk_labels.py`. If you suspect a parcellation mismatch, run the verifier on one subject:
 
@@ -379,21 +399,48 @@ The Gugger Lab DK workflow has four imaging stages upstream of `nodestrength`:
 Then the analysis layer (`scripts/run_dk_ai_cohort.py`):
 
 5. **Node strength** — BCT `strengths_und`: `s_i = Σ_{j≠i} W_ij` for each of
-   84 DK nodes.
-6. **Interhemispheric asymmetry index** — for each of 41 matched L/R pairs:
-   `side_ai = (L − R) / (L + R)` and `log_ai = ln(L / R)`.
+   84 DK nodes → `strength/per_subject/sub-XXX_strength.csv`.
+6. **Interhemispheric asymmetry index (strength)** — for each of 42 matched L/R
+   pairs: `side_ai = (L − R) / (L + R)` and `log_ai = ln(L / R)` →
+   `strength/per_subject/sub-XXX_ai.csv`.
+7. **Volume + volume AI** *(optional, `--with-volume-ai`)* — ROI volume from
+   `dk_nodes.mif` → `volume/per_subject/`; cross-modality table in
+   `compare/strength_vs_volume_ai.csv`.
 
 Full imaging documentation: `DWI_Connectivity_Pipeline_Documentation.md` on the
 dwi_test2 share.
 
-### 11.2 Result locations
+### 11.2 Result locations and folder layout
 
 | Location | Role |
 |---|---|
 | `/mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes/sub-XXX/` | Per-subject connectome inputs |
 | `/mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results/` | Primary analysis outputs |
-| `/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/node_strength_results/` | Workflow mirror (same CSV layout) |
+| `/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/node_strength_results/` | Workflow mirror (same layout) |
 | `/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/documentation/` | Copied README, nodestrength docs, runner script |
+
+**Output folder structure** (as of Jul 21, 2026):
+
+```
+node_strength_results/
+├── README.md, manifest.json, nodestrength.md, nodestrength.docx, …
+├── strength/                          # connectivity (always written)
+│   ├── per_subject/
+│   │   ├── sub-XXX_strength.csv
+│   │   └── sub-XXX_ai.csv
+│   ├── node_strength_cohort.csv
+│   ├── asymmetry_index_cohort.csv
+│   └── cohort_summary.csv
+├── volume/                            # optional (--with-volume-ai)
+│   ├── per_subject/
+│   │   ├── sub-XXX_volume.csv
+│   │   └── sub-XXX_volume_ai.csv
+│   ├── node_volume_cohort.csv
+│   ├── volume_asymmetry_index_cohort.csv
+│   └── cohort_volume_summary.csv
+└── compare/                           # optional (--with-volume-ai)
+    └── strength_vs_volume_ai.csv
+```
 
 SMB equivalents:
 
@@ -417,12 +464,12 @@ after editing the markdown.
 | Item | Status |
 |---|---|
 | Subjects with DK connectomes | 5: `sub-001`, `sub-006`, `sub-007`, `sub-TBI011011`, `sub-TBI011204` |
-| Node strength + interhemispheric AI | Done — see `node_strength_results/` |
+| Node strength + interhemispheric AI | Done — `strength/` under `node_strength_results/` |
+| Volumetric AI | Done on dwi_test2 — `volume/` + `compare/` (run with `--with-volume-ai`) |
 | Normative z-scoring | Not run (needs control cohort + covariates) |
 | SOZ-aligned AI (`soz_ai`) | Not run (no SOZ side supplied) |
 | Group GLMs (Pillai) | Not run on real data (demo only in `scripts/outputs/`) |
 | Thalamic nucleus AI (THOMAS) | Not run — DK gives whole-thalamus L/R only |
-| Volumetric AI | Planned optional step — not implemented yet (see §11.7) |
 
 Run the cohort analysis:
 
@@ -430,6 +477,15 @@ Run the cohort analysis:
 python scripts/run_dk_ai_cohort.py \
     --root /mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes \
     --out  /mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results
+```
+
+Add volumetric AI (requires `dk_nodes.mif` per subject):
+
+```bash
+python scripts/run_dk_ai_cohort.py \
+    --root /mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes \
+    --out  /mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results \
+    --with-volume-ai
 ```
 
 Restrict to one subject after a connectome rebuild:
@@ -441,21 +497,24 @@ python scripts/run_dk_ai_cohort.py \
     --include TBI011204
 ```
 
-Then merge the new per-subject CSVs into the cohort tables and refresh
-`cohort_summary.csv` and `manifest.json`.
+Then merge the new per-subject CSVs into `strength/` cohort tables and refresh
+`strength/cohort_summary.csv` and `manifest.json` (and `volume/` / `compare/`
+if volume AI was enabled).
 
 ### 11.4 Output files — quick reference
 
-Each subject gets two tables under `per_subject/`. **Full methodology, sources,
+Each subject gets two tables under `strength/per_subject/`. **Full methodology, sources,
 column definitions, interpretation, and limitations are in §12.**
 
 | File | Rows | Question it answers |
 |---|---|---|
-| `sub-XXX_strength.csv` | 84 | How much connectivity does each DK node have? |
-| `sub-XXX_ai.csv` | 41 | Is connectivity left–right asymmetric for each ROI pair? |
+| `strength/per_subject/sub-XXX_strength.csv` | 84 | How much connectivity does each DK node have? |
+| `strength/per_subject/sub-XXX_ai.csv` | 42 | Is connectivity left–right asymmetric for each ROI pair? |
+| `volume/per_subject/sub-XXX_volume.csv` | 84 | What is each DK node's volume (mm³)? *(with `--with-volume-ai`)* |
+| `volume/per_subject/sub-XXX_volume_ai.csv` | 42 | Is volume left–right asymmetric for each ROI pair? *(with `--with-volume-ai`)* |
 
-Cohort-level mirrors: `node_strength_cohort.csv`, `asymmetry_index_cohort.csv`,
-`cohort_summary.csv`.
+Cohort-level mirrors live under `strength/` and `volume/`; cross-modality comparison
+under `compare/strength_vs_volume_ai.csv`.
 
 ### 11.5 Interhemispheric asymmetry index (summary)
 
@@ -497,8 +556,9 @@ formula** on different modalities:
 |---|---|---|
 | **Formula** | `(L − R) / (L + R)` | `(L − R) / (L + R)` |
 | **Quantity** | Connectivity (SIFT2-weighted streamline counts) | ROI volume (mm³ from segmentation) |
-| **Current dwi_test2 status** | **Done** — `_ai.csv`, `side_ai` on strength | **Not yet run** |
-| **Package support** | `run_dk_ai_cohort.py` | `cohort_ai(..., value="volume_mm3")`, `fit_volume_model()` |
+| **Current dwi_test2 status** | **Done** — `strength/per_subject/sub-XXX_ai.csv` | **Done** — `volume/per_subject/sub-XXX_volume_ai.csv` |
+| **Output location** | `strength/` | `volume/`; comparison in `compare/` |
+| **Package support** | `run_dk_ai_cohort.py` | Same script with `--with-volume-ai`; also `cohort_ai(..., value="volume_mm3")`, `fit_volume_model()` |
 
 They can **agree** (both left-biased) or **diverge** (symmetric volume but
 asymmetric connectivity, or vice versa). Piper et al. report complementary
@@ -508,10 +568,10 @@ an error.
 **Normative adjustment differs:** strength z-scoring uses age, sex, motion, and
 mean-brain strength; volume z-scoring uses age, sex, and ICV.
 
-### 11.7 Planned optional step — volumetric AI after node strength
+### 11.7 Optional step — volumetric AI after node strength
 
-Volume AI can be added as an **optional second block** in `run_dk_ai_cohort.py`
-without rerunning QSIPrep, FreeSurfer, or QSIRecon:
+Volume AI is an **optional second block** in `run_dk_ai_cohort.py` — no need to
+rerun QSIPrep, FreeSurfer, or QSIRecon:
 
 ```
 Step A (default):  dk_connectome.csv  →  strength  →  strength AI
@@ -519,7 +579,7 @@ Step B (optional): dk_nodes.mif       →  ROI volume →  volume AI
 Step C (optional): merge strength AI + volume AI for comparison
 ```
 
-Proposed CLI flag (not yet implemented):
+CLI:
 
 ```bash
 python scripts/run_dk_ai_cohort.py \
@@ -528,19 +588,23 @@ python scripts/run_dk_ai_cohort.py \
     --with-volume-ai
 ```
 
-**Recommended volume source:** voxel counts in `dk_nodes.mif` (same 84-node grid
-as the connectome). Alternative: FreeSurfer `segstats` on `aparc+aseg` (standard
-but slightly different spatial frame).
+**Volume source:** voxel counts in `dk_nodes.mif` (same 84-node grid as the
+connectome). Alternative for other workflows: FreeSurfer `segstats` on
+`aparc+aseg` (standard but slightly different spatial frame).
 
-**Planned extra outputs:**
+**Extra outputs when `--with-volume-ai` is set** (under `volume/` and `compare/`):
 
 | File | Contents |
 |---|---|
-| `node_volume_cohort.csv` | Long-form: subject × node × volume_mm3 |
-| `volume_asymmetry_index_cohort.csv` | 41 pairs × volume AI |
-| `strength_vs_volume_ai.csv` | Side-by-side comparison per ROI |
-| `per_subject/sub-XXX_volume.csv` | Per-subject volumes |
-| `per_subject/sub-XXX_volume_ai.csv` | Per-subject volume AI |
+| `volume/node_volume_cohort.csv` | Long-form: subject × node × volume_mm3 |
+| `volume/volume_asymmetry_index_cohort.csv` | 42 pairs × volume AI |
+| `volume/cohort_volume_summary.csv` | Per-ROI mean/SD of volume AI |
+| `volume/per_subject/sub-XXX_volume.csv` | Per-subject volumes |
+| `volume/per_subject/sub-XXX_volume_ai.csv` | Per-subject volume AI |
+| `compare/strength_vs_volume_ai.csv` | Side-by-side comparison per ROI |
+
+Subjects without `dk_nodes.mif` are skipped for volume with a warning; strength
+outputs are still written.
 
 **Caveats for v1:** raw AI only (no normative z-scoring until controls + ICV are
 available); DK thalamus remains whole-structure, not THOMAS nuclei.
@@ -550,11 +614,11 @@ available); DK thalamus remains whole-structure, not THOMAS nuclei.
 When a connectome is rebuilt (e.g. after label-warp QC), regenerate only that
 subject and merge into the cohort:
 
-1. Delete `per_subject/sub-TBI011204_strength.csv` and `sub-TBI011204_ai.csv`.
+1. Delete `strength/per_subject/sub-TBI011204_strength.csv` and `sub-TBI011204_ai.csv`.
 2. Run `run_dk_ai_cohort.py --include TBI011204` to a temporary output dir.
-3. Remove old rows for `TBI011204` from `node_strength_cohort.csv` and
-   `asymmetry_index_cohort.csv`; append new rows.
-4. Recompute `cohort_summary.csv`.
+3. Remove old rows for `TBI011204` from `strength/node_strength_cohort.csv` and
+   `strength/asymmetry_index_cohort.csv`; append new rows.
+4. Recompute `strength/cohort_summary.csv`.
 5. Record the event in `manifest.json` → `regenerated_subjects`.
 6. Sync updated CSVs to `Workflows/DWI-AI/node_strength_results/` if needed.
 
@@ -581,28 +645,32 @@ only. They are **not** real cohort findings.
 
 **Q: Is interhemispheric AI the same as volumetric AI?**
 A: Same formula and left–right comparison; different underlying quantity
-(strength vs volume). You have strength AI now; volume AI is a planned add-on.
+(strength vs volume). Strength AI lives in `strength/per_subject/sub-XXX_ai.csv`;
+volume AI in `volume/per_subject/sub-XXX_volume_ai.csv`.
 
 **Q: What is in `_ai.csv`?**
-A: Interhemispheric asymmetry on **node strength** — 41 L/R pairs with
-`side_ai` and `log_ai`.
+A: Interhemispheric asymmetry on **node strength** — 42 L/R pairs with
+`side_ai` and `log_ai`, under `strength/per_subject/`.
 
 **Q: Where are results?**
-A: `.../dwi_test2/node_strength_results/` (formerly `AI_results`).
+A: `.../dwi_test2/node_strength_results/` with subfolders `strength/`,
+`volume/` (optional), and `compare/` (optional).
 
 **Q: Can we compare strength AI to volume AI?**
-A: Yes, scientifically sound at the ROI level once volume AI is computed from
-`dk_nodes.mif`; expect complementary rather than identical signals.
+A: Yes — see `compare/strength_vs_volume_ai.csv` (one row per subject × ROI
+pair with both modalities side by side). Expect complementary rather than
+identical signals.
 
 **Q: Does this replace Piper et al. thalamic nucleus analysis?**
 A: Not yet — DK whole-thalamus only. Per-nucleus AV/CM/MDPf/PUL analysis
 requires THOMAS segmentation on top of FreeSurfer.
 
-## 12. Per-subject output reference — `_strength.csv` and `_ai.csv`
+## 12. Per-subject output reference — strength and volume files
 
-This section is the authoritative description of the two core DK cohort output
-files. It covers definitions, upstream inputs, credible sources, how the files
-relate to each other, interpretation, and explicit limitations.
+This section is the authoritative description of DK cohort output files under
+`strength/`, `volume/`, and `compare/`. It covers definitions, upstream inputs,
+credible sources, how the files relate to each other, interpretation, and explicit
+limitations.
 
 ### 12.1 Data flow
 
@@ -613,11 +681,11 @@ dk_connectomes/sub-XXX/dk_connectome.csv     (84×84, SIFT2-weighted, symmetric)
          BCT strengths_und  (nodestrength.connectome)
                     │
                     ▼
-      per_subject/sub-XXX_strength.csv         (84 rows — one per DK node)
+      strength/per_subject/sub-XXX_strength.csv   (84 rows — one per DK node)
                     │
-                    │  pair 41 homologous L/R ROIs (nodestrength.dk_atlas)
+                    │  pair 42 homologous L/R ROIs (nodestrength.dk_atlas)
                     ▼
-      per_subject/sub-XXX_ai.csv               (41 rows — interhemispheric AI)
+      strength/per_subject/sub-XXX_ai.csv         (42 rows — interhemispheric AI)
 ```
 
 Implementation: `scripts/run_dk_ai_cohort.py` → `_strength_table()` and
@@ -677,7 +745,7 @@ equivalent to summing row `i` (or column `i`) of `W`.
 
 - Not normative z-scores (raw streamline-weight sums; no age/sex/motion adjustment).
 - Not nucleus-level thalamic strength as in Piper et al. (requires THOMAS).
-- Not a measure of tissue volume (see planned volumetric AI, §11.7).
+- Not a measure of tissue volume (see volumetric AI, §12.7).
 - Not edge-level connectivity (strength collapses all edges into one scalar per node).
 
 ### 12.3 `sub-XXX_ai.csv`
@@ -702,8 +770,8 @@ Also called **side AI**, **hemispheric AI**, or **normalized asymmetry index**.
 | `side_ai` | float | Interhemispheric AI: `(L − R) / (L + R)`; NaN if `L + R ≤ 0` |
 | `log_ai` | float | Log-ratio AI: `ln(L / R)`; NaN if either value ≤ 0 |
 
-**Row count:** exactly **41** matched L/R pairs (34 cortical + 7 subcortical,
-including whole thalamus + cerebellum cortex). Pairing rules are in
+**Row count:** exactly **42** matched L/R pairs (34 cortical + 7 subcortical +
+1 cerebellum cortex). Pairing rules are in
 `nodestrength.dk_atlas.lr_pair_table()`.
 
 #### Formulas
@@ -748,8 +816,8 @@ Both are computed by `nodestrength.asymmetry.side_ai()` and `.log_ai()`.
 
 #### What `_ai.csv` is NOT
 
-- **Not volumetric AI** — same formula can be applied to ROI volume (§11.6), but
-  this file uses **connectivity strength** only.
+- **Not volumetric AI** — same formula is applied to ROI volume in
+  `_volume_ai.csv` (§12.7); this file uses **connectivity strength** only.
 - **Not SOZ-aligned AI** — does not use `soz_ai = (ipsi − contra) / (ipsi + contra)`.
   Requires per-subject SOZ side (`nodestrength asymmetry --soz-side-col`).
 - **Not a substitute for Piper's mixed GLM** — complementary scalar for plots,
@@ -757,12 +825,15 @@ Both are computed by `nodestrength.asymmetry.side_ai()` and `.log_ai()`.
 - **Not statistically tested** — no p-values or group contrasts; use
   `nodestrength analyze` or external stats on cohort tables.
 
-### 12.4 Relationship between the two files
+### 12.4 Relationship between strength files
+
+All strength paths are under `strength/`:
 
 | | `_strength.csv` | `_ai.csv` |
 |---|---|---|
+| **Location** | `strength/per_subject/` | `strength/per_subject/` |
 | **Unit** | Single hemisphere / node | L+R pair |
-| **Rows** | 84 | 41 |
+| **Rows** | 84 | 42 |
 | **Primary value** | `strength` | `side_ai`, `log_ai` |
 | **Depends on** | `dk_connectome.csv` | `_strength.csv` |
 | **Use when** | Absolute connectivity per region | Left–right imbalance per region |
@@ -775,11 +846,61 @@ imaging computation — only a deterministic transform of strength values.
 
 | Per-subject file | Cohort file | Description |
 |---|---|---|
-| `sub-XXX_strength.csv` | `node_strength_cohort.csv` | All subjects stacked; same columns + `subject` |
-| `sub-XXX_ai.csv` | `asymmetry_index_cohort.csv` | All subjects stacked |
-| — | `cohort_summary.csv` | Per-ROI mean/SD of `side_ai` and `log_ai` across subjects |
+| `strength/per_subject/sub-XXX_strength.csv` | `strength/node_strength_cohort.csv` | All subjects stacked; same columns + `subject` |
+| `strength/per_subject/sub-XXX_ai.csv` | `strength/asymmetry_index_cohort.csv` | All subjects stacked |
+| `volume/per_subject/sub-XXX_volume.csv` | `volume/node_volume_cohort.csv` | All subjects stacked *(with `--with-volume-ai`)* |
+| `volume/per_subject/sub-XXX_volume_ai.csv` | `volume/volume_asymmetry_index_cohort.csv` | All subjects stacked *(with `--with-volume-ai`)* |
+| — | `strength/cohort_summary.csv` | Per-ROI mean/SD of strength `side_ai` and `log_ai` |
+| — | `volume/cohort_volume_summary.csv` | Per-ROI mean/SD of volume `side_ai` and `log_ai` |
+| — | `compare/strength_vs_volume_ai.csv` | Side-by-side strength AI vs volume AI per ROI |
 
-### 12.6 Making results more paper-faithful
+### 12.7 `sub-XXX_volume.csv` and `sub-XXX_volume_ai.csv` *(optional)*
+
+When `run_dk_ai_cohort.py` is run with `--with-volume-ai`, two additional
+per-subject files are written from `dk_nodes.mif`:
+
+```
+dk_connectomes/sub-XXX/dk_nodes.mif   (84 labels on tractography grid)
+                    │
+                    ▼
+         voxel count × voxel size (nodestrength.dk_atlas)
+                    │
+                    ▼
+      volume/per_subject/sub-XXX_volume.csv       (84 rows — volume_mm3 per node)
+                    │
+                    ▼
+      volume/per_subject/sub-XXX_volume_ai.csv    (42 rows — interhemispheric AI on volume)
+```
+
+**Volume source:** `dk_nodes.mif` on the QSIPrep/QSIRecon tractography grid —
+same 84-node label space as `tck2connectome`. Not interchangeable with
+FreeSurfer `segstats` volumes (different voxel grid).
+
+**`_volume.csv` columns:** same identity columns as `_strength.csv`, with
+`volume_mm3` instead of `strength`.
+
+**`_volume_ai.csv` columns:** same pairing as `_ai.csv`, with
+`L_volume_mm3`, `R_volume_mm3`, `side_ai`, and `log_ai` using the identical
+formulas as strength AI.
+
+**Caveats:** raw volumes (no ICV normalization); DK whole thalamus only.
+
+### 12.8 `compare/strength_vs_volume_ai.csv` *(optional)*
+
+When both strength and volume AI are computed, the runner merges cohort AI tables
+into one comparison file under `compare/`:
+
+| Column group | Contents |
+|---|---|
+| Keys | `subject`, `roi_name`, `region_type`, `L_index`, `R_index` |
+| Strength | `L_strength`, `R_strength`, `strength_side_ai`, `strength_log_ai` |
+| Volume | `L_volume_mm3`, `R_volume_mm3`, `volume_side_ai`, `volume_log_ai` |
+
+One row per subject × ROI pair (210 rows for 5 subjects × 42 pairs). Use this
+table for scatter plots, correlations, or screening where both modalities are
+relevant; it does not replace mixed GLMs on normative z-scores.
+
+### 12.9 Making results more paper-faithful
 
 To move closer to Piper et al. 2026 inference:
 

@@ -37,8 +37,10 @@ data.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Tuple
 
+import numpy as np
 import pandas as pd
 
 
@@ -150,8 +152,33 @@ def build_node_lookup() -> pd.DataFrame:
     ])
 
 
+def dk_volumes_from_label_data(data: np.ndarray, voxel_volume_mm3: float) -> np.ndarray:
+    """Per-node volume (mm³) from a DK label array with values 1..84.
+
+    ``voxel_volume_mm3`` is the volume of one voxel in cubic millimetres
+    (product of absolute voxel edge lengths on the tractography grid).
+    """
+    flat = np.asarray(data).ravel()
+    counts = np.array([(flat == label).sum() for label in range(1, 85)], dtype=float)
+    return counts * float(voxel_volume_mm3)
+
+
+def compute_dk_volumes_mm3(dk_nodes_path: str | Path) -> np.ndarray:
+    """Load ``dk_nodes.mif`` and return length-84 DK node volumes in mm³.
+
+    Uses the same 1..84 ``fs_default`` labels as ``tck2connectome``. Volumes
+    are computed on the tractography grid (typically QSIPrep ``dwiref``), so
+    they align spatially with the connectome used for node strength.
+    """
+    from nodestrength.mif import read_mif
+
+    img = read_mif(Path(dk_nodes_path))
+    voxel_volume = float(np.abs(np.prod(img.vox[:3])))
+    return dk_volumes_from_label_data(np.asarray(img.data), voxel_volume)
+
+
 def lr_pair_table() -> pd.DataFrame:
-    """Return one row per matched L/R DK ROI (41 pairs).
+    """Return one row per matched L/R DK ROI (42 pairs).
 
     Columns: ``roi_name``, ``L_index``, ``R_index``, ``region_type``.
     Used for asymmetry-index computation downstream.

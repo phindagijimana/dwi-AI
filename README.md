@@ -39,9 +39,24 @@ python scripts/run_dk_ai_cohort.py \
     --out  /path/to/node_strength_results
 ```
 
-Per-subject and cohort CSVs for node strength + AI land in `--out`.
-See **`nodestrength.md` §12** for full documentation of `sub-XXX_strength.csv`
-and `sub-XXX_ai.csv` (definitions, sources, interpretation, limitations).
+Per-subject and cohort CSVs land in `--out` under modality subfolders:
+
+```
+node_strength_results/
+├── strength/     # always — _strength.csv, _ai.csv, cohort tables
+├── volume/       # with --with-volume-ai
+└── compare/      # with --with-volume-ai — strength_vs_volume_ai.csv
+```
+
+```bash
+python scripts/run_dk_ai_cohort.py \
+    --root /path/to/dk_connectomes \
+    --out  /path/to/node_strength_results \
+    --with-volume-ai   # optional
+```
+
+See **`nodestrength.md` §11–12** for the full folder layout and file definitions
+(`strength/per_subject/sub-XXX_strength.csv`, `_ai.csv`, volume, and compare).
 
 ### B. IDEAS II pre-processed archive
 
@@ -69,7 +84,7 @@ Reports subjects discovered, ROI naming sanity, participants.tsv column map, and
 ## Tests
 
 ```bash
-pytest -q     # 100 tests
+pytest -q     # 106 tests
 ```
 
 Coverage: BCT parity, normative GLM, mixed ANOVA, AI formulas, BIDS walker, IDEAS ingestion, DK label-ordering lock-in.

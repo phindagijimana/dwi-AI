@@ -6,6 +6,8 @@ PDF in this repo: `Epilepsia - 2026 - Piper - Thalamocortical structural connect
 
 For implementation runbooks and IDEAS/MICA-MICs notes, see [`node.md`](node.md). For how this repo applies the methods on DK connectomes, see [`nodestrength.md`](nodestrength.md) §11–12.
 
+**DK cohort outputs** (Gugger Lab `dwi_test2`) are written to `node_strength_results/` with subfolders `strength/`, `volume/` (optional), and `compare/` (optional). See §11.2 of `nodestrength.md`.
+
 ---
 
 ## One-sentence summary

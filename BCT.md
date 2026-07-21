@@ -216,10 +216,15 @@ def _strengths_und(W: np.ndarray) -> np.ndarray:
 
 | Output | BCT usage |
 |--------|-----------|
-| `per_subject/sub-XXX_strength.csv` | `strengths_und` on full DK connectome |
-| `per_subject/sub-XXX_ai.csv` | AI formulas on L/R strength pairs (not a BCT function) |
-| `node_strength_cohort.csv` | Cohort stack of strength tables |
+| `strength/per_subject/sub-XXX_strength.csv` | `strengths_und` on full DK connectome |
+| `strength/per_subject/sub-XXX_ai.csv` | AI formulas on L/R strength pairs (not a BCT function) |
+| `strength/node_strength_cohort.csv` | Cohort stack of strength tables |
+| `volume/per_subject/sub-XXX_volume.csv` | Not BCT — voxel counts from `dk_nodes.mif` |
+| `compare/strength_vs_volume_ai.csv` | Merged strength AI + volume AI (not a BCT function) |
 | THOMAS / IDEAS path | `compute_nucleus_strength` with optional inter-thalamic mask |
+
+**Folder layout:** strength outputs under `strength/`; volume under `volume/`;
+cross-modality under `compare/` (see [`nodestrength.md`](nodestrength.md) §11.2).
 
 See [`nodestrength.md`](nodestrength.md) §12 for CSV column definitions and sources.
 

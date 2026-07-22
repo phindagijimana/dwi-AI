@@ -417,6 +417,7 @@ dwi_test2 share.
 | `/mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes/sub-XXX/` | Per-subject connectome inputs |
 | `/mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results/` | Primary analysis outputs |
 | `/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/node_strength_results/` | Workflow mirror (same layout) |
+| `/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/` | Shared Apptainer image + `run_dk_cohort.sh` |
 | `/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/documentation/` | Copied README, nodestrength docs, runner script |
 
 **Output folder structure** (as of Jul 21, 2026):
@@ -471,7 +472,23 @@ after editing the markdown.
 | Group GLMs (Pillai) | Not run on real data (demo only in `scripts/outputs/`) |
 | Thalamic nucleus AI (THOMAS) | Not run — DK gives whole-thalamus L/R only |
 
-Run the cohort analysis:
+Run the cohort analysis (**standalone container**, recommended):
+
+```bash
+# dwi_test2 defaults:
+bash /mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/run_dk_cohort.sh
+
+# any cohort:
+bash /mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/run.sh CONNECTOME_DIR OUTPUT_DIR
+```
+
+Volume AI is **on by default** (reads `dk_nodes.mif`). Use `--strength-only` to
+skip `volume/` and `compare/`. Image:
+`/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/nodestrength_0.1.0.sif` (~203 MB,
+version 0.1.0, Jul 22 2026). No repo checkout required — same pattern as
+`freesurfer_7.4.1.sif` / `qsiprep.sif`.
+
+**Python** (from repo checkout):
 
 ```bash
 python scripts/run_dk_ai_cohort.py \

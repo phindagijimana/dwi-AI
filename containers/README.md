@@ -1,154 +1,135 @@
-# Containerized analysis layer
+# nodestrength — standalone analysis container
 
-The **imaging upstream** (QSIPrep, FreeSurfer, QSIRecon, `tck2connectome`) stays
-on the cluster or workstation as today. Only the **Python analysis layer** is
-containerized.
+Independent Apptainer/Singularity image for **DK node strength**, **strength
+interhemispheric AI**, **volume AI**, and **compare/** tables. Works like lab
+imaging containers (`freesurfer_7.4.1.sif`, `qsiprep.sif`): copy or bind-mount
+the `.sif`, mount data paths, run — **no repo checkout or Python env required**.
 
-**Default run:** node strength, strength interhemispheric AI, **volume AI**, and
-`compare/strength_vs_volume_ai.csv` — all three output folders
-(`strength/`, `volume/`, `compare/`).
-
-Use **`--strength-only`** to skip volume AI (container entrypoint only).
-
-**In the container:** Python 3.11, `numpy`, `pandas`, `scipy`, `nibabel`, `bctpy`,
-`nodestrength` (includes `mif.py` for reading `dk_nodes.mif`), cohort scripts under
-`/app/scripts/`.
-
-**Not in the container:** FreeSurfer, MRtrix3, FSL, QSIPrep, QSIRecon.
-
----
-
-## Why containerize?
-
-| Benefit | Detail |
+| Artifact | Purpose |
 |---|---|
-| Reproducible environment | Same Python + `bctpy` version on laptop, CI, and Slurm |
-| No module conflicts | Avoid fighting cluster Python modules |
-| Easy handoff | Analysts run one image against NFS-mounted connectomes |
-| Singularity-friendly | HPC sites usually accept `.sif` built from this Dockerfile |
-| Volume AI included | Reads `dk_nodes.mif` in pure Python — no MRtrix at run time |
+| `nodestrength_0.1.0.sif` | Versioned image (canonical name) |
+| `run.sh` | Standalone launcher (copy beside the `.sif`) |
+| `dwi-ai-analysis.sif` | Symlink to versioned name (backward compatible) |
+
+**Default run:** strength + volume + compare. Use `--strength-only` to skip volume.
 
 ---
 
-## Build (Docker)
-
-From the repository root:
+## Quick start (any user with Apptainer)
 
 ```bash
-docker build -t dwi-ai-analysis:latest .
-```
-
-Verify:
-
-```bash
-docker run --rm dwi-ai-analysis:latest --help
-docker run --rm --entrypoint nodestrength dwi-ai-analysis:latest --help
-```
-
----
-
-## Run (Docker)
-
-Default — **strength + volume + compare**:
-
-```bash
-docker run --rm \
-  -v /mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes:/data/connectomes:ro \
-  -v /mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results:/data/out \
-  dwi-ai-analysis:latest \
-  --root /data/connectomes \
-  --out  /data/out
-```
-
-Strength only (no `volume/` or `compare/`):
-
-```bash
-docker run --rm \
-  -v .../dk_connectomes:/data/connectomes:ro \
-  -v .../node_strength_results:/data/out \
-  dwi-ai-analysis:latest \
-  --root /data/connectomes --out /data/out --strength-only
-```
-
-Other scripts (override entrypoint):
-
-```bash
-docker run --rm --entrypoint python dwi-ai-analysis:latest \
-  /app/scripts/verify_dk_labels.py --help
-```
-
----
-
-## Build (Singularity / Apptainer)
-
-On this cluster, `/tmp` is often **noexec** — use the provided build script:
-
-```bash
-bash containers/build.sh
-# → containers/dwi-ai-analysis.sif (~203 MB)
-```
-
-The script sets `APPTAINER_TMPDIR` and `PROOT_TMP_DIR` under `containers/.build-tmp`.
-
-**Manual build** (same flags):
-
-```bash
-export APPTAINER_TMPDIR=$PWD/containers/.build-tmp
-export PROOT_TMP_DIR=$APPTAINER_TMPDIR
-mkdir -p "$APPTAINER_TMPDIR"
-apptainer build --force containers/dwi-ai-analysis.sif containers/dwi-ai-analysis-build.def
-```
-
-**Option A — from Docker/Podman** (if rootless podman works on your machine):
-
-```bash
-podman build -t dwi-ai-analysis:latest .
-apptainer build containers/dwi-ai-analysis.sif docker-daemon://dwi-ai-analysis:latest
-```
-
-**Option B — wrapper def** (requires pre-built Docker tag):
-
-```bash
-docker build -t dwi-ai-analysis:latest .
-apptainer build containers/dwi-ai-analysis.sif containers/dwi-ai-analysis.def
-```
-
-Copy `containers/dwi-ai-analysis.sif` to a shared location (e.g. lab modules path).
-
----
-
-## Run (Singularity / Apptainer on NFS)
-
-```bash
-SIF=/path/to/dwi-ai-analysis.sif
-CONNECT=/mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes
-OUT=/mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results
+SIF=/path/to/nodestrength_0.1.0.sif
+CONNECT=/path/to/dk_connectomes      # parent of sub-*/
+OUT=/path/to/node_strength_results   # writable
 
 apptainer run --cleanenv \
   -B "$CONNECT:$CONNECT:ro" \
   -B "$OUT:$OUT" \
   "$SIF" \
-  --root "$CONNECT" \
-  --out  "$OUT"
+  "$CONNECT" "$OUT"
 ```
 
-Helper script:
+Or use the bundled launcher (copy `run.sh` next to the `.sif`):
 
 ```bash
-bash containers/run_dk_cohort.sh
+./run.sh /path/to/dk_connectomes /path/to/node_strength_results
+```
+
+Help (no bind mounts needed):
+
+```bash
+apptainer run nodestrength_0.1.0.sif --help
 ```
 
 ---
 
-## Verified on URMC (Jul 22, 2026)
+## Inputs and outputs
 
-Built with `bash containers/build.sh` (Apptainer 1.5.2). Tested against
-`dwi_test2` (5 subjects):
+**Per subject** under `CONNECT/sub-XXX/`:
 
-- Default run → `strength/`, `volume/`, `compare/`; `manifest.json` reports
-  `volume_ai_enabled: true`, `n_subjects_with_volume: 5`
-- `--strength-only` → `strength/` only, no `volume/`
-- BCT backend active inside container
+| File | Required | Role |
+|---|---|---|
+| `dk_connectome.csv` | yes | 84×84 symmetric SIFT2 connectome |
+| `dk_nodes.mif` | for volume AI | MRtrix label grid (read in pure Python) |
+
+**Output** under `OUT/`:
+
+```
+strength/per_subject/sub-XXX_strength.csv
+strength/per_subject/sub-XXX_ai.csv
+volume/per_subject/sub-XXX_volume.csv      # default on
+volume/per_subject/sub-XXX_volume_ai.csv
+compare/strength_vs_volume_ai.csv
+manifest.json
+README.md
+```
+
+---
+
+## Options
+
+| Flag | Effect |
+|---|---|
+| `--strength-only` | Skip `volume/` and `compare/` |
+| `--include SUB ...` | Process only listed subject IDs |
+| `--root DIR --out DIR` | Flag form instead of positional paths |
+
+Environment defaults (optional):
+
+```bash
+export CONNECTOME_ROOT=/path/to/dk_connectomes
+export OUTPUT_DIR=/path/to/node_strength_results
+apptainer run ... nodestrength_0.1.0.sif
+```
+
+---
+
+## Gugger Lab shared copy
+
+```
+/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/
+├── nodestrength_0.1.0.sif
+├── run.sh
+├── README.md
+└── VERSION
+```
+
+```bash
+bash /mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/run.sh \
+  /mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes \
+  /mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results
+```
+
+SMB: `smb://smdnas/gugger_lab/Workflows/DWI-AI/containers/`
+
+---
+
+## Build
+
+### From repo checkout (URMC / HPC)
+
+`/tmp` is often **noexec** — use the build script:
+
+```bash
+bash containers/build.sh
+# → containers/nodestrength_0.1.0.sif
+```
+
+### From GitHub only (no checkout)
+
+Requires network during build:
+
+```bash
+mkdir -p .build-tmp && export APPTAINER_TMPDIR=$PWD/.build-tmp
+apptainer build --force nodestrength_0.1.0.sif containers/nodestrength-remote.def
+```
+
+### Docker
+
+```bash
+docker build -t nodestrength:0.1.0 .
+docker run --rm nodestrength:0.1.0 --help
+```
 
 ---
 
@@ -156,50 +137,38 @@ Built with `bash containers/build.sh` (Apptainer 1.5.2). Tested against
 
 ```bash
 #!/bin/bash
-#SBATCH --job-name=dwi-ai
+#SBATCH --job-name=nodestrength
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=4G
 #SBATCH --time=00:30:00
 
-SIF=/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/dwi-ai-analysis.sif
-CONNECT=/mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes
-OUT=/mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results
+SIF=/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/nodestrength_0.1.0.sif
+CONNECT=/path/to/dk_connectomes
+OUT=/path/to/node_strength_results
 
 apptainer run --cleanenv \
   -B "$CONNECT:$CONNECT:ro" \
   -B "$OUT:$OUT" \
   "$SIF" \
-  --root "$CONNECT" \
-  --out  "$OUT"
+  "$CONNECT" "$OUT"
 ```
 
-Analysis is CPU-light (seconds per subject for five subjects); Slurm is optional
-but useful for scheduled cohort refreshes.
+---
+
+## What's inside
+
+- Python 3.11, `numpy`, `pandas`, `scipy`, `nibabel`, `bctpy`
+- Installed CLIs: **`dk-ai-cohort`**, **`nodestrength`**
+- **Not included:** FreeSurfer, MRtrix3, QSIPrep, QSIRecon (upstream imaging only)
 
 ---
 
-## Inputs and outputs
+## Publishing (optional)
 
-| Host path | Container mount | Role |
-|---|---|---|
-| `.../dk_connectomes/sub-*/dk_connectome.csv` | bind-mount parent dir | Required — node strength |
-| `.../dk_connectomes/sub-*/dk_nodes.mif` | same | Required for volume AI (default on) |
-| `.../node_strength_results/strength/` | bind-mount rw | `_strength.csv`, `_ai.csv`, cohort tables |
-| `.../node_strength_results/volume/` | bind-mount rw | `_volume.csv`, `_volume_ai.csv` |
-| `.../node_strength_results/compare/` | bind-mount rw | `strength_vs_volume_ai.csv` |
+To share outside NFS, push to GitHub Container Registry after `docker build`:
 
-Subjects missing `dk_nodes.mif` are skipped for volume with a warning; strength
-outputs are still written.
-
----
-
-## Scope limits
-
-- Container runs **`run_dk_ai_cohort.py`** (via entrypoint) and installed **`nodestrength`** CLI.
-- It does **not** rebuild connectomes. If `dk_connectome.csv` or `dk_nodes.mif`
-  changes, re-run the container.
-- Normative GLMs / `score_connectomes.py` work if you mount a derivatives tree
-  with `connectome.csv` + `node_lookup.tsv` and override the entrypoint.
-
-See [`../other_analysis.md`](../other_analysis.md) for downstream analyses not
-yet wired into the default container entrypoint.
+```bash
+docker tag nodestrength:0.1.0 ghcr.io/phindagijimana/nodestrength:0.1.0
+docker push ghcr.io/phindagijimana/nodestrength:0.1.0
+apptainer build nodestrength_0.1.0.sif docker://ghcr.io/phindagijimana/nodestrength:0.1.0
+```

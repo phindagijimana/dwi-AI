@@ -18,11 +18,13 @@
 
 FROM python:3.11-slim-bookworm
 
-LABEL org.opencontainers.image.title="dwi-AI analysis"
-LABEL org.opencontainers.image.description="DK node strength + strength AI + volume AI (nodestrength)"
+LABEL org.opencontainers.image.title="nodestrength"
+LABEL org.opencontainers.image.description="DK node strength + strength AI + volume AI (standalone analysis container)"
 LABEL org.opencontainers.image.source="https://github.com/phindagijimana/dwi-AI"
+LABEL org.opencontainers.image.version="0.1.0"
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
+ENV NODESTRENGTH_VERSION=0.1.0 \
+    PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1

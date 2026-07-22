@@ -81,6 +81,25 @@ nodestrength inspect /path/to/dataset
 
 Reports subjects discovered, ROI naming sanity, participants.tsv column map, and a single `READY` / `PARTIAL` / `NOTHING_FOUND` verdict.
 
+## Container (standalone)
+
+Independent Apptainer/Docker image — like `freesurfer_7.4.1.sif`, no repo checkout:
+
+```bash
+apptainer run --cleanenv \
+  -B /path/to/dk_connectomes:/path/to/dk_connectomes:ro \
+  -B /path/to/out:/path/to/out \
+  nodestrength_0.1.0.sif \
+  /path/to/dk_connectomes /path/to/out
+```
+
+Build: `bash containers/build.sh` → `containers/nodestrength_0.1.0.sif`
+
+Gugger Lab shared copy:
+`/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/`
+
+See [`containers/README.md`](containers/README.md).
+
 ## Tests
 
 ```bash

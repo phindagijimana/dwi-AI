@@ -4,7 +4,8 @@ From: python:3.11-slim-bookworm
 %labels
     Author phindagijimana
     Version 0.1.0
-    Description DK node strength + strength AI + volume AI (nodestrength)
+    org.opencontainers.image.title nodestrength
+    Description Standalone DK node strength + strength AI + volume AI
 
 %environment
     export PYTHONUNBUFFERED=1

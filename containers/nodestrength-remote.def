@@ -1,0 +1,43 @@
+# Build nodestrength without a local checkout (requires network during build).
+#
+#   export APPTAINER_TMPDIR=$PWD/.build-tmp && mkdir -p "$APPTAINER_TMPDIR"
+#   apptainer build --force nodestrength_0.1.0.sif nodestrength-remote.def
+#
+# Override source branch/tag:
+#   apptainer build --build-arg GIT_REF=main nodestrength_0.1.0.sif nodestrength-remote.def
+
+Bootstrap: docker
+From: python:3.11-slim-bookworm
+
+%arguments
+    GIT_REF main
+
+%labels
+    Author phindagijimana
+    Version 0.1.0
+    org.opencontainers.image.title nodestrength
+    Description Standalone DK node strength + strength AI + volume AI
+
+%environment
+    export PYTHONUNBUFFERED=1
+    export PYTHONDONTWRITEBYTECODE=1
+    export NODESTRENGTH_VERSION=0.1.0
+
+%post
+    apt-get update
+    apt-get install -y --no-install-recommends git
+    rm -rf /var/lib/apt/lists/*
+    git clone --depth 1 --branch {{ GIT_REF }} \
+        https://github.com/phindagijimana/dwi-AI.git /src
+    cd /src
+    pip install --upgrade pip
+    pip install -e ".[bct]"
+    install -m 0755 containers/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
+%runscript
+    exec /usr/local/bin/docker-entrypoint.sh "$@"
+
+%help
+    nodestrength 0.1.0 — DK node strength + interhemispheric AI + volume AI.
+    Run: apptainer run image.sif CONNECTOME_DIR OUTPUT_DIR
+    Help: apptainer run image.sif --help

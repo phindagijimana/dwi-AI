@@ -22,6 +22,7 @@ bct = ["bctpy>=0.5"]
 
 [project.scripts]
 nodestrength = "nodestrength.cli:main"
+dk-ai-cohort = "nodestrength.dk_cohort:main"
 
 [tool.setuptools.packages.find]
 include = ["nodestrength*"]

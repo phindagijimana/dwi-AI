@@ -163,9 +163,47 @@ apptainer run --cleanenv \
 
 ---
 
-## Publishing (optional)
+## Publishing to Docker Hub
 
-To share outside NFS, push to GitHub Container Registry after `docker build`:
+Image: **[`phindagijimana321/nodestrength`](https://hub.docker.com/r/phindagijimana321/nodestrength)**
+
+### From this cluster (Apptainer ORAS push — no Docker build needed)
+
+Uses the existing `nodestrength_0.1.0.sif`:
+
+```bash
+# 1. Create repo on hub.docker.com: phindagijimana321/nodestrength
+# 2. Create access token: Account Settings → Security → New Access Token
+
+export DOCKERHUB_TOKEN=your_token_here
+bash containers/push-dockerhub.sh
+```
+
+Or login interactively first:
+
+```bash
+podman login docker.io -u phindagijimana321
+bash containers/push-dockerhub.sh
+```
+
+### From GitHub Actions (recommended for releases)
+
+Add repo secrets `DOCKERHUB_USERNAME` and `DOCKERHUB_TOKEN`, then:
+
+- Push tag `v0.1.0`, or
+- Run workflow **Publish Docker Hub** manually (Actions tab)
+
+### Pull after publish
+
+```bash
+# Apptainer (SIF artifact stored via ORAS)
+apptainer pull nodestrength_0.1.0.sif oras://index.docker.io/phindagijimana321/nodestrength:0.1.0
+apptainer run nodestrength_0.1.0.sif /connectomes /output
+```
+
+For standard `docker pull` / Docker runtime, use the GitHub Actions workflow below.
+
+### GitHub Container Registry (alternative)
 
 ```bash
 docker tag nodestrength:0.1.0 ghcr.io/phindagijimana/nodestrength:0.1.0

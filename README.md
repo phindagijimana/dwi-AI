@@ -108,7 +108,9 @@ scripts/           cohort runners + DK label verifier
 tests/             pytest suite
 paper.md           Piper et al. 2026 — summary and key ideas
 BCT.md             Brain Connectivity Toolbox reference
+other_analysis.md  Further analyses possible on DK connectomes (not yet run)
 node.md            Extended paper notes and cohort runbooks
+containers/        Docker + Singularity for the analysis layer
 ```
 
 ## Details and caveats

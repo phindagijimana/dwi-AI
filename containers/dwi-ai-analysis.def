@@ -1,0 +1,21 @@
+# Singularity definition — build on an HPC node with Singularity/apptainer.
+#
+# From repo root:
+#   apptainer build containers/dwi-ai-analysis.sif containers/dwi-ai-analysis.def
+#
+# Or convert from Docker (after `docker build -t dwi-ai-analysis:latest .`):
+#   apptainer build containers/dwi-ai-analysis.sif docker-daemon://dwi-ai-analysis:latest
+
+Bootstrap: docker
+From: dwi-ai-analysis:latest
+
+%labels
+    Author phindagijimana
+    Version 0.1.0
+    Description DK node strength + strength AI + volume AI (nodestrength)
+
+%environment
+    export PYTHONUNBUFFERED=1
+
+%runscript
+    exec /usr/local/bin/docker-entrypoint.sh "$@"

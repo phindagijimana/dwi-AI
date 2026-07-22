@@ -19,3 +19,10 @@ scripts/outputs/
 .idea/
 *.swp
 .DS_Store
+
+# Container build artifacts
+*.sif
+containers/*.sif
+containers/.build-tmp/
+containers/.test-out/
+containers/.test-out-strength-only/

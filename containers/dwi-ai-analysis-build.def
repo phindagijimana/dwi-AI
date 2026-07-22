@@ -1,0 +1,32 @@
+Bootstrap: docker
+From: python:3.11-slim-bookworm
+
+%labels
+    Author phindagijimana
+    Version 0.1.0
+    Description DK node strength + strength AI + volume AI (nodestrength)
+
+%environment
+    export PYTHONUNBUFFERED=1
+    export PYTHONDONTWRITEBYTECODE=1
+
+%files
+    pyproject.toml /app/pyproject.toml
+    node.md /app/node.md
+    README.md /app/README.md
+    nodestrength /app/nodestrength
+    scripts /app/scripts
+    containers/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+    BCT.md /app/BCT.md
+    paper.md /app/paper.md
+    nodestrength.md /app/nodestrength.md
+    other_analysis.md /app/other_analysis.md
+
+%post
+    cd /app
+    pip install --upgrade pip
+    pip install -e ".[bct]"
+    chmod +x /usr/local/bin/docker-entrypoint.sh
+
+%runscript
+    exec /usr/local/bin/docker-entrypoint.sh "$@"

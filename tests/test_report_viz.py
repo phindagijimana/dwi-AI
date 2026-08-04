@@ -209,29 +209,44 @@ def test_parcel_to_fsa5_vertices() -> None:
 def test_generate_report_figures(tmp_path: Path) -> None:
     _write_full_strength(tmp_path)
     _write_minimal_ai(tmp_path)
-    paths = generate_report_figures(tmp_path, "sub-001", use_enigma_surfaces=True)
-    assert len(paths) == 2
+    _write_minimal_intra(tmp_path)
+    conn = tmp_path / "dkt_connectome.csv"
+    _write_connectome(conn)
+    paths = generate_report_figures(
+        tmp_path, "sub-001", connectome_csv=conn, use_enigma_surfaces=True)
+    assert len(paths) >= 8
     assert all(p.is_file() for p in paths)
     names = {p.name for p in paths}
-    assert names == {"subcortical_panel.png", "enigma_cortical_abs_ai.png"}
+    assert "subcortical_panel.png" in names
+    assert "subcortical_intra_panel.png" in names
+    assert "enigma_cortical_abs_ai.png" in names
+    assert "thalamus_seed_profile.png" in names
+    assert "standard_vs_intra_ai.png" in names
 
 
 def test_generate_report_figures_bar_fallback(tmp_path: Path) -> None:
     _write_full_strength(tmp_path)
     _write_minimal_ai(tmp_path)
+    _write_minimal_intra(tmp_path)
     paths = generate_report_figures(tmp_path, "sub-001", use_enigma_surfaces=False)
     names = {p.name for p in paths}
-    assert names == {"subcortical_panel.png", "absolute_asymmetry_top.png"}
+    assert "subcortical_panel.png" in names
+    assert "absolute_asymmetry_top.png" in names
+    assert "subcortical_intra_panel.png" in names
 
 
 def test_clinical_report_with_figures(tmp_path: Path) -> None:
     _write_full_strength(tmp_path)
     _write_minimal_ai(tmp_path)
-    pdf = generate_clinical_report(tmp_path, "sub-001")
+    _write_minimal_intra(tmp_path)
+    conn = tmp_path / "dkt_connectome.csv"
+    _write_connectome(conn)
+    pdf = generate_clinical_report(
+        tmp_path, "sub-001", connectome_csv=conn)
     assert pdf.is_file()
     assert pdf.stat().st_size > 5000
     fig_dir = tmp_path / "reports" / "sub-001" / "figures"
     assert (fig_dir / "subcortical_panel.png").is_file()
     assert (fig_dir / "enigma_cortical_abs_ai.png").is_file()
-    assert not (fig_dir / "thalamus_seed_profile.png").exists()
-    assert not (fig_dir / "subcortical_intra_panel.png").exists()
+    assert (fig_dir / "thalamus_seed_profile.png").is_file()
+    assert (fig_dir / "subcortical_intra_panel.png").is_file()

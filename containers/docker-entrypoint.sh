@@ -56,8 +56,9 @@ Example:
     /data/connectomes /data/out /data/freesurfer
 
 Outputs per subject:
-  strength/ volume/ compare/   analysis CSVs
-  reports/<subject>/report.pdf minimal clinical summary (PDF)
+  strength/ volume/ compare/   analysis CSVs (intra AI included)
+  reports/<subject>/figures/   full PNG visualization gallery
+  reports/<subject>/report.pdf   lean clinical summary PDF
 
 Inputs per subject folder under CONNECTOME_DIR:
   dkt_connectome.csv  required — 84x84 symmetric connectome per subject folder

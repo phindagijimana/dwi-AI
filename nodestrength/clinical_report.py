@@ -63,6 +63,7 @@ class SubjectReportInput:
     folder_name: str
     connectome_csv: Optional[Path] = None
     subject_dir: Optional[Path] = None
+    fs_subject_dir: Optional[Path] = None
 
 
 def _fmt_ai(value: float) -> str:
@@ -171,6 +172,7 @@ def generate_clinical_report(
     *,
     connectome_csv: Optional[Path] = None,
     subject_dir: Optional[Path] = None,
+    fs_subject_dir: Optional[Path] = None,
     participants_path: Optional[Path] = None,
     normative_model_path: Optional[Path] = None,
     control_group: str = "control",
@@ -201,6 +203,7 @@ def generate_clinical_report(
             folder_name,
             connectome_csv=connectome_csv,
             subject_dir=subject_dir,
+            fs_subject_dir=fs_subject_dir,
         )
 
     generated = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
@@ -318,6 +321,7 @@ def generate_cohort_reports(
                 item.folder_name,
                 connectome_csv=item.connectome_csv,
                 subject_dir=item.subject_dir,
+                fs_subject_dir=item.fs_subject_dir,
                 participants_path=participants_path,
                 normative_model_path=normative_model_path,
                 control_group=control_group,

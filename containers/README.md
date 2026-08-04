@@ -70,8 +70,8 @@ strength/per_subject/sub-XXX_ai.csv
 volume/per_subject/sub-XXX_volume.csv      # default on
 volume/per_subject/sub-XXX_volume_ai.csv
 compare/strength_vs_volume_ai.csv
-reports/sub-XXX/report.pdf                 # default on — tables + brain-map figures
-reports/sub-XXX/figures/                 # PNG plots (also embedded in PDF)
+reports/sub-XXX/report.pdf                 # default on — lean clinical PDF
+reports/sub-XXX/figures/                   # default on — full PNG gallery
 manifest.json
 README.md
 ```

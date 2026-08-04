@@ -235,7 +235,7 @@ def main(argv=None) -> int:
     p.add_argument("--with-volume-ai", action="store_true",
                    help="Also compute ROI volumes from dk_nodes.mif and volume AI.")
     p.add_argument("--report", action="store_true",
-                   help="Write minimal clinical PDF per subject under reports/.")
+                   help="Write clinical PDF + figures (default unless --no-report).")
     p.add_argument("--no-report", action="store_true",
                    help="Skip clinical PDF reports.")
     p.add_argument("--participants", type=Path, default=None,
@@ -249,10 +249,8 @@ def main(argv=None) -> int:
 
     if args.no_report:
         write_report = False
-    elif args.report:
-        write_report = True
     else:
-        write_report = False
+        write_report = True
 
     args.out.mkdir(parents=True, exist_ok=True)
 
@@ -390,7 +388,7 @@ def main(argv=None) -> int:
             "strength": "strength/ — per-subject strength + strength AI and cohort tables",
             "volume": "volume/ — per-subject volume + volume AI (with --with-volume-ai)",
             "compare": "compare/ — cross-modality tables (with --with-volume-ai)",
-            "reports": "reports/ — minimal clinical PDF per subject (with --report)",
+            "reports": "reports/ — clinical PDF + full figure gallery per subject (default)",
         },
         "ai_formulas": {
             "side_ai": "(L - R) / (L + R)",
@@ -442,6 +440,7 @@ def main(argv=None) -> int:
                     folder_name=s.folder_name,
                     connectome_csv=s.connectome_csv,
                     subject_dir=s.subject_dir,
+                    fs_subject_dir=s.fs_subject_dir,
                 )
                 for s in subjects
             ],
@@ -509,8 +508,8 @@ Columns: `subject`, `roi_name`, `region_type`, `L_index`, `R_index`,
 
 | File | Contents |
 |------|----------|
-| `reports/sub-XXX/report.pdf` | One-page summary + brain maps (tables + figures) |
-| `reports/sub-XXX/figures/` | PNG figures (cortical asymmetry map, subcortical panel) |
+| `reports/sub-XXX/report.pdf` | Lean clinical summary (tables + two key figures) |
+| `reports/sub-XXX/figures/` | Full PNG gallery (cortical map, subcortical panels, seed profiles, etc.) |
 
 """
 

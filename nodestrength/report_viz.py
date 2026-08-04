@@ -676,15 +676,32 @@ def _try_brain_surface_maps(
     return saved
 
 
-def generate_report_figures(
+def _append_figure(paths: List[Path], result: Optional[Path]) -> None:
+    if result is not None and result.is_file():
+        paths.append(result)
+
+
+def _fs_lookup_dir(
+    subject_dir: Optional[Path],
+    fs_subject_dir: Optional[Path],
+) -> Optional[Path]:
+    if fs_subject_dir is not None and fs_subject_dir.is_dir():
+        return fs_subject_dir
+    if subject_dir is not None and subject_dir.is_dir():
+        return subject_dir
+    return None
+
+
+def generate_all_subject_figures(
     results_dir: Path,
     folder_name: str,
     *,
     connectome_csv: Optional[Path] = None,
     subject_dir: Optional[Path] = None,
+    fs_subject_dir: Optional[Path] = None,
     use_enigma_surfaces: bool = True,
 ) -> List[Path]:
-    """Build clinical PNG figures: subcortical panel + cortical asymmetry map."""
+    """Build the full PNG figure set for one subject under ``reports/<subject>/figures/``."""
     prefix = subject_file_prefix(folder_name)
     fig_dir = results_dir / "reports" / prefix / "figures"
     fig_dir.mkdir(parents=True, exist_ok=True)
@@ -693,9 +710,20 @@ def generate_report_figures(
 
     strength = _load_strength(results_dir, prefix)
     strength_ai = _load_strength_ai(results_dir, prefix)
+    volume_ai = _load_volume_ai(results_dir, prefix)
+    strength_intra = _load_strength_intra(results_dir, prefix)
+    intra_ai = _load_intra_ai(results_dir, prefix)
 
     paths: List[Path] = []
     paths.append(plot_subcortical_panel(strength, strength_ai, fig_dir / "subcortical_panel.png"))
+
+    if strength_intra is not None and intra_ai is not None:
+        paths.append(plot_subcortical_intra_panel(
+            strength_intra, intra_ai, fig_dir / "subcortical_intra_panel.png"))
+        paths.append(plot_standard_vs_intra_ai(
+            strength_ai, intra_ai, fig_dir / "standard_vs_intra_ai.png"))
+
+    paths.append(plot_hub_strength_top(strength, fig_dir / "hub_strength_top.png"))
 
     if use_enigma_surfaces:
         cortical = _plot_cortical_abs_ai_surface(strength_ai, fig_dir)
@@ -706,4 +734,70 @@ def generate_report_figures(
         paths.append(plot_absolute_asymmetry_top(
             strength_ai, fig_dir / "absolute_asymmetry_top.png"))
 
+    fs_volumes: Optional[pd.DataFrame] = None
+    fs_dir = _fs_lookup_dir(subject_dir, fs_subject_dir)
+    if fs_dir is not None:
+        aparc = find_aparc_seg(fs_dir)
+        if aparc is not None:
+            try:
+                fs_volumes = fs_subcortical_volumes_mm3(aparc)
+                paths.append(plot_fs_subcortical_volumes(
+                    fs_volumes, fig_dir / "fs_subcortical_volumes.png"))
+            except Exception as exc:
+                logger.warning("FreeSurfer subcortical volume plot failed: %s", exc)
+                plt.close("all")
+
+    if use_enigma_surfaces:
+        for extra in _try_brain_surface_maps(strength, strength_ai, fig_dir, fs_volumes):
+            if extra.is_file() and extra not in paths:
+                paths.append(extra)
+
+    if volume_ai is not None:
+        _append_figure(
+            paths,
+            plot_strength_vs_volume_scatter(
+                strength_ai, volume_ai, fig_dir / "strength_vs_volume_ai.png"),
+        )
+
+    if connectome_csv is not None and connectome_csv.is_file():
+        for seed_key in _SEED_INDICES:
+            try:
+                paths.append(plot_seed_profile(
+                    connectome_csv, fig_dir / f"{seed_key}_seed_profile.png", seed_key))
+            except Exception as exc:
+                logger.warning("%s seed profile failed: %s", seed_key, exc)
+                plt.close("all")
+        try:
+            paths.append(plot_homotopic_interhemispheric(
+                connectome_csv, fig_dir / "homotopic_interhemispheric.png"))
+        except Exception as exc:
+            logger.warning("Homotopic plot failed: %s", exc)
+            plt.close("all")
+        try:
+            paths.append(plot_connectome_heatmap(
+                connectome_csv, fig_dir / "connectome_heatmap.png"))
+        except Exception as exc:
+            logger.warning("Connectome heatmap failed: %s", exc)
+            plt.close("all")
+
     return paths
+
+
+def generate_report_figures(
+    results_dir: Path,
+    folder_name: str,
+    *,
+    connectome_csv: Optional[Path] = None,
+    subject_dir: Optional[Path] = None,
+    fs_subject_dir: Optional[Path] = None,
+    use_enigma_surfaces: bool = True,
+) -> List[Path]:
+    """Build all report PNG figures (full set written to ``reports/<subject>/figures/``)."""
+    return generate_all_subject_figures(
+        results_dir,
+        folder_name,
+        connectome_csv=connectome_csv,
+        subject_dir=subject_dir,
+        fs_subject_dir=fs_subject_dir,
+        use_enigma_surfaces=use_enigma_surfaces,
+    )

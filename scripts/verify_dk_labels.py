@@ -16,8 +16,8 @@ connectomes), and produce a CSV ``empirical_lut.csv`` ready to drop into
 Run:
 
     python scripts/verify_dk_labels.py \
-        --subject /mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes/sub-001 \
-        --out /mnt/nfs/.../node_strength_results/empirical_lut.csv
+        --subject /path/to/connectomes/sub-001 \
+        --out /path/to/out/empirical_lut.csv
 """
 
 from __future__ import annotations

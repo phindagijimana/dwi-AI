@@ -85,6 +85,11 @@ def log_ai(ipsi: float, contra: float) -> float:
 # Cohort-level helper
 # ---------------------------------------------------------------------------
 
+def resolve_soz_side(row: pd.Series, soz_side_col: Optional[str] = "soz_side") -> Optional[str]:
+    """Public wrapper for SOZ hemisphere resolution ("L" / "R" / None)."""
+    return _resolve_soz_side(row, soz_side_col)
+
+
 def _resolve_soz_side(row: pd.Series, soz_side_col: Optional[str]) -> Optional[str]:
     """Determine the SOZ side ("L" / "R") for a subject, or None."""
     if soz_side_col and soz_side_col in row and isinstance(row[soz_side_col], str):

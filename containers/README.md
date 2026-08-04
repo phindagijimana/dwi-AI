@@ -11,28 +11,35 @@ the `.sif`, mount data paths, run — **no repo checkout or Python env required*
 | `run.sh` | Standalone launcher (copy beside the `.sif`) |
 | `dwi-ai-analysis.sif` | Symlink to versioned name (backward compatible) |
 
-**Default run:** strength + volume + compare. Use `--strength-only` to skip volume.
+**Default run:** strength + volume + compare + clinical PDF with ENIGMA-style brain maps.
+Cortical inflated surfaces render via nilearn; subcortical 3D surfaces need ENIGMA Toolbox
+(included in the container build). Use `--strength-only` to skip volume.
 
 ---
 
 ## Quick start (any user with Apptainer)
 
+Provide **only** paths on your system — no lab- or repo-specific defaults.
+
 ```bash
 SIF=/path/to/nodestrength_0.1.0.sif
-CONNECT=/path/to/dk_connectomes      # parent of sub-*/
-OUT=/path/to/node_strength_results   # writable
+CONNECT=/path/to/connectomes     # one folder per subject
+OUT=/path/to/results             # writable
+FS=/path/to/freesurfer/subjects  # optional — if dk_nodes.mif lives under FS
 
 apptainer run --cleanenv \
   -B "$CONNECT:$CONNECT:ro" \
   -B "$OUT:$OUT" \
+  ${FS:+-B "$FS:$FS:ro"} \
   "$SIF" \
-  "$CONNECT" "$OUT"
+  "$CONNECT" "$OUT" ${FS:+"$FS"}
 ```
 
 Or use the bundled launcher (copy `run.sh` next to the `.sif`):
 
 ```bash
-./run.sh /path/to/dk_connectomes /path/to/node_strength_results
+./run.sh /path/to/connectomes /path/to/results
+./run.sh /path/to/connectomes /path/to/results /path/to/freesurfer/subjects
 ```
 
 Help (no bind mounts needed):
@@ -45,12 +52,15 @@ apptainer run nodestrength_0.1.0.sif --help
 
 ## Inputs and outputs
 
-**Per subject** under `CONNECT/sub-XXX/`:
+**Per subject** — any folder name under `CONNECT/` (BIDS `sub-XXX` or other IDs):
 
 | File | Required | Role |
 |---|---|---|
-| `dk_connectome.csv` | yes | 84×84 symmetric SIFT2 connectome |
-| `dk_nodes.mif` | for volume AI | MRtrix label grid (read in pure Python) |
+| `dkt_connectome.csv` | yes | 84×84 symmetric SIFT2 connectome |
+| `dk_nodes.mif` | for volume AI | MRtrix label grid — in connectome folder **or** `FS/<subject>/` |
+
+Legacy connectome filenames (`dk_connectome.csv`, `connectome.csv`) are still
+accepted. The CLI alias `dk-ai-cohort` remains available.
 
 **Output** under `OUT/`:
 
@@ -60,6 +70,8 @@ strength/per_subject/sub-XXX_ai.csv
 volume/per_subject/sub-XXX_volume.csv      # default on
 volume/per_subject/sub-XXX_volume_ai.csv
 compare/strength_vs_volume_ai.csv
+reports/sub-XXX/report.pdf                 # default on — tables + brain-map figures
+reports/sub-XXX/figures/                 # PNG plots (also embedded in PDF)
 manifest.json
 README.md
 ```
@@ -71,42 +83,24 @@ README.md
 | Flag | Effect |
 |---|---|
 | `--strength-only` | Skip `volume/` and `compare/` |
+| `--no-report` | Skip `reports/` PDF summaries |
 | `--include SUB ...` | Process only listed subject IDs |
-| `--root DIR --out DIR` | Flag form instead of positional paths |
+| `--root DIR --out DIR [--fs-root DIR]` | Flag form instead of positional paths |
 
 Environment defaults (optional):
 
 ```bash
-export CONNECTOME_ROOT=/path/to/dk_connectomes
-export OUTPUT_DIR=/path/to/node_strength_results
+export CONNECTOME_ROOT=/path/to/connectomes
+export OUTPUT_DIR=/path/to/results
+export FS_ROOT=/path/to/freesurfer/subjects   # optional
 apptainer run ... nodestrength_0.1.0.sif
 ```
 
 ---
 
-## Gugger Lab shared copy
-
-```
-/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/
-├── nodestrength_0.1.0.sif
-├── run.sh
-├── README.md
-└── VERSION
-```
-
-```bash
-bash /mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/run.sh \
-  /mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes \
-  /mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results
-```
-
-SMB: `smb://smdnas/gugger_lab/Workflows/DWI-AI/containers/`
-
----
-
 ## Build
 
-### From repo checkout (URMC / HPC)
+### From repo checkout (HPC / cluster)
 
 `/tmp` is often **noexec** — use the build script:
 
@@ -142,8 +136,8 @@ docker run --rm nodestrength:0.1.0 --help
 #SBATCH --mem=4G
 #SBATCH --time=00:30:00
 
-SIF=/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/nodestrength_0.1.0.sif
-CONNECT=/path/to/dk_connectomes
+SIF=/path/to/nodestrength_0.1.0.sif
+CONNECT=/path/to/dkt_connectomes
 OUT=/path/to/node_strength_results
 
 apptainer run --cleanenv \
@@ -158,7 +152,7 @@ apptainer run --cleanenv \
 ## What's inside
 
 - Python 3.11, `numpy`, `pandas`, `scipy`, `nibabel`, `bctpy`
-- Installed CLIs: **`dk-ai-cohort`**, **`nodestrength`**
+- Installed CLIs: **`dkt-ai-cohort`**, **`nodestrength`** (`dk-ai-cohort` is a legacy alias)
 - **Not included:** FreeSurfer, MRtrix3, QSIPrep, QSIRecon (upstream imaging only)
 
 ---

@@ -116,7 +116,7 @@ So the *engineering* side is a one-to-two-week job to wire end-to-end on a singl
 Three things we can actually do, in increasing order of fidelity:
 
 1. **Method-replication on public data.** Run the full pipeline on an open paediatric dataset with multi-shell dMRI + T1 (e.g. ABCD, HCP-Development, dHCP at older ages) plus a small epilepsy dataset such as the Epilepsy fMRI/dMRI public cohorts. We can produce the THOMAS connectomes, nucleus strengths, and the GLM/normative model. We **won't** replicate the SOZ-specific findings without epilepsy patients, but we can verify the pipeline yields the controls panel (Figure 2 / Table S1).
-2. **Apply the method to a local epilepsy cohort.** If there is local URMC focal-epilepsy dMRI data (the `node_strength` working directory name and the rest of your repos suggest this is the direction), we can re-implement the pipeline as a Python/CLI tool and run the same GLM analyses on local data. This is the most scientifically interesting version because the result is a *new* finding, not a reproduction.
+2. **Apply the method to a local epilepsy cohort.** With access to a focal-epilepsy dMRI cohort and matched controls, re-implement the pipeline as a Python/CLI tool and run the same GLM analyses on local data. This is the most scientifically interesting version because the result is a *new* finding, not a reproduction.
 3. **Tool-level open-source release.** Package the pipeline as a Snakemake/Nextflow + BIDS-Apps style container that consumes a BIDS dataset and outputs per-subject THOMAS connectomes, nucleus strengths, and group-level GLM reports. This is a worthwhile artefact regardless of which cohort it runs against.
 
 ### Suggested first sprint (~1 week, single subject)

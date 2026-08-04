@@ -6,7 +6,9 @@ PDF in this repo: `Epilepsia - 2026 - Piper - Thalamocortical structural connect
 
 For implementation runbooks and IDEAS/MICA-MICs notes, see [`node.md`](node.md). For how this repo applies the methods on DK connectomes, see [`nodestrength.md`](nodestrength.md) §11–12.
 
-**DK cohort outputs** (Gugger Lab `dwi_test2`) are written to `node_strength_results/` with subfolders `strength/`, `volume/` (optional), and `compare/` (optional). See §11.2 of `nodestrength.md`.
+**DK cohort outputs** are written to `node_strength_results/` with subfolders
+`strength/`, `volume/` (optional), and `compare/` (optional). See §11 of
+[`nodestrength.md`](nodestrength.md).
 
 ---
 
@@ -132,14 +134,15 @@ MDPf and right PUL strength decline with age in controls.
 
 | Paper element | This repo (`nodestrength`) |
 |---------------|----------------------------|
-| Atlas | Paper: Lausanne + **THOMAS nuclei**. Gugger Lab DK path: **84-node Desikan–Killiany** (whole thalamus). |
+| Atlas | Paper: Lausanne + **THOMAS nuclei**. DK path in this repo: **84-node Desikan–Killiany** (whole thalamus). |
 | Node strength | Same BCT `strengths_und` concept ([`BCT.md`](BCT.md)) |
-| Normative GLM | Implemented (`nodestrength.normative`); not yet run on dwi_test2 |
+| Normative GLM | Implemented (`nodestrength.normative`); requires a control cohort to run |
 | Mixed GLM (Pillai) | Implemented (`nodestrength.stats`); demo on synthetic data |
 | Interhemispheric AI scalar | **Not in paper**; complementary (`nodestrength.asymmetry`) |
 | IDEAS II cohort | Supported via `nodestrength.ideas` ([`node.md`](node.md)) |
 
-The **`node_strength` package implements the analysis layer** Piper et al. describe; the Gugger Lab **QSIPrep → QSIRecon → DK** path is documented separately in `DWI_Connectivity_Pipeline_Documentation.md` on the dwi_test2 share.
+The **`node_strength` package implements the analysis layer** Piper et al. describe;
+upstream QSIPrep → QSIRecon → DK connectome generation is site-specific.
 
 ---
 

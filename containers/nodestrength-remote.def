@@ -13,7 +13,7 @@ From: python:3.11-slim-bookworm
     GIT_REF main
 
 %labels
-    Author phindagijimana
+    Author nodestrength
     Version 0.1.0
     org.opencontainers.image.title nodestrength
     Description Standalone DK node strength + strength AI + volume AI

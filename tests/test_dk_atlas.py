@@ -1,7 +1,7 @@
 """Lock in the DK / fs_default ordering verified against MRtrix3 v3.0.4.
 
 These tests freeze the ordering empirically verified by
-``scripts/verify_dk_labels.py`` on the Gugger_Lab dwi_test2 cohort. Any
+``scripts/verify_dk_labels.py`` on real connectome data. Any
 future change to ``build_dk_nodes`` that breaks the verified pairings
 will fail loudly here.
 """

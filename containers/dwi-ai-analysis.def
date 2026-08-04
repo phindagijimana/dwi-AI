@@ -10,7 +10,7 @@ Bootstrap: docker
 From: dwi-ai-analysis:latest
 
 %labels
-    Author phindagijimana
+    Author nodestrength
     Version 0.1.0
     Description DK node strength + strength AI + volume AI (nodestrength)
 

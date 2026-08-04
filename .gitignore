@@ -8,14 +8,21 @@ build/
 dist/
 *.so
 
-# Demo / scratch outputs — regenerate from scripts when needed.
-scripts/outputs/
+# Site-specific / local notes — do not commit
+nodestrength.local.md
+*.local.md
+
+# Generated Word doc — regenerate locally from nodestrength.md
+nodestrength.docx
+
 
 # Large research PDF stays on disk but not in version control.
 *.pdf
 
 # Editor noise
 .vscode/
+.idea/
+vendor/
 .idea/
 *.swp
 .DS_Store

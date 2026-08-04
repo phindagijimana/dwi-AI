@@ -1,5 +1,5 @@
 # Analysis layer: node strength + interhemispheric AI + volume AI (default).
-# Mount host paths to dk_connectomes/ and node_strength_results/ at run time.
+# Mount host paths to dkt_connectomes/ and node_strength_results/ at run time.
 #
 # Volume AI uses dk_nodes.mif on the tractography grid (pure Python .mif reader).
 #
@@ -8,10 +8,11 @@
 #
 # Run (strength + volume + compare/):
 #   docker run --rm \
-#     -v /mnt/nfs/Gugger_Lab/NIR/dwi_test2/dk_connectomes:/data/connectomes:ro \
-#     -v /mnt/nfs/Gugger_Lab/NIR/dwi_test2/node_strength_results:/data/out \
-#     dwi-ai-analysis:latest \
-#     --root /data/connectomes --out /data/out
+#     -v /path/to/connectomes:/data/connectomes:ro \
+#     -v /path/to/freesurfer:/data/freesurfer:ro \
+#     -v /path/to/out:/data/out \
+#     nodestrength:0.1.0 \
+#     /data/connectomes /data/out /data/freesurfer
 #
 # Strength only (skip volume/ and compare/):
 #     ... dwi-ai-analysis:latest --root ... --out ... --strength-only
@@ -31,10 +32,14 @@ ENV NODESTRENGTH_VERSION=0.1.0 \
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+    libx11-6 libxext6 libxrender1 libsm6 libgl1 libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install package + BCT backend + CLI entry point.
 COPY pyproject.toml node.md README.md ./
 COPY nodestrength/ nodestrength/
-RUN pip install --upgrade pip && pip install -e ".[bct]"
+RUN pip install --upgrade pip && pip install -e ".[bct,viz]"
 
 COPY scripts/ scripts/
 COPY containers/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh

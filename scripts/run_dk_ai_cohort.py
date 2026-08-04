@@ -1,8 +1,6 @@
-"""Backward-compatible wrapper — prefer ``dk-ai-cohort`` or the container image."""
+"""Backward-compatible wrapper — prefer ``run_dkt_ai_cohort.py`` or ``dkt-ai-cohort``."""
 
 from __future__ import annotations
-
-import sys
 
 from nodestrength.dk_cohort import main
 

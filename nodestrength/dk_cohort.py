@@ -1,11 +1,14 @@
 """Run BCT node strength + asymmetry index on a directory of DK connectomes.
 
-Expected layout under ``--root``:
+Expected layout under ``--root`` (any subject folder name):
 
-    sub-XXX/dk_connectome.csv     84x84, symmetric, zero diagonal
-    sub-XXX/dk_nodes.mif          label image (required for --with-volume-ai)
+    <subject>/dkt_connectome.csv    84x84, symmetric, zero diagonal
+    <subject>/dk_nodes.mif          label image (required for --with-volume-ai)
 
-See ``dk-ai-cohort --help`` and ``containers/README.md`` for container usage.
+Optional ``--fs-root`` (FreeSurfer SUBJECTS_DIR) resolves ``dk_nodes.mif`` when
+it is not stored beside the connectome CSV.
+
+See ``dkt-ai-cohort --help`` and ``containers/README.md`` for container usage.
 """
 
 from __future__ import annotations
@@ -20,21 +23,116 @@ import numpy as np
 import pandas as pd
 
 from nodestrength.asymmetry import log_ai, side_ai
-from nodestrength.connectome import _strengths_und, load_connectome, uses_bctpy
+from nodestrength.connectome import (
+    _strengths_und,
+    intrahemispheric_strengths_und,
+    load_connectome,
+    uses_bctpy,
+)
 from nodestrength.dk_atlas import (
     build_dk_nodes,
     compute_dk_volumes_mm3,
     lr_pair_table,
 )
+from nodestrength.dk_clinical import (
+    pair_soz_ai_table,
+    soz_side_for_subject,
+    strength_z_pair_table,
+)
+from nodestrength.dk_normative import (
+    _normalize_subject_id,
+    fit_dk_strength_model,
+    prepare_dk_strength_long,
+    save_dk_model,
+    side_ai_z_from_controls,
+)
+from nodestrength.dk_inputs import (
+    SubjectInputs,
+    discover_subjects,
+    filter_subjects,
+    subject_file_prefix,
+)
+from nodestrength.ideas import load_participants
 
 
-def _find_subjects(root: Path) -> List[Path]:
-    """Return ``sub-*`` directories that contain a ``dk_connectome.csv``."""
-    return sorted([
-        sub for sub in root.iterdir()
-        if sub.is_dir() and sub.name.startswith("sub-")
-           and (sub / "dk_connectome.csv").is_file()
-    ])
+def _write_clinical_derivatives(
+    out_dir: Path,
+    subjects: List[SubjectInputs],
+    cohort_strength: pd.DataFrame,
+    cohort_ai: pd.DataFrame,
+    *,
+    participants_path: Optional[Path],
+    normative_model_path: Optional[Path],
+    control_group: str,
+) -> Optional[Path]:
+    """Write per-subject SOZ AI and normative z-score tables when metadata allows."""
+    if participants_path is None or not participants_path.is_file():
+        return None
+
+    participants = load_participants(participants_path)
+    strength_ps = out_dir / "strength" / "per_subject"
+
+    model = None
+    model_out: Optional[Path] = None
+    if normative_model_path is not None and normative_model_path.is_file():
+        from nodestrength.dk_normative import load_dk_model
+        model = load_dk_model(normative_model_path)
+    elif "group" in participants.columns:
+        controls = participants.loc[
+            participants["group"].astype(str).str.lower() == control_group.lower(),
+            "subject",
+        ]
+        control_ids = {_normalize_subject_id(s) for s in controls}
+        if control_ids:
+            controls_long = prepare_dk_strength_long(
+                cohort_strength.loc[
+                    cohort_strength["subject"].map(_normalize_subject_id).isin(control_ids)
+                ],
+                participants,
+            )
+            try:
+                model = fit_dk_strength_model(controls_long)
+                model_out = out_dir / "normative_strength_model.pkl"
+                save_dk_model(model_out, model)
+            except (ValueError, KeyError) as exc:
+                print(f"  WARN: normative model not fitted: {exc}")
+
+    control_ai = pd.DataFrame()
+    if "group" in participants.columns:
+        controls = participants.loc[
+            participants["group"].astype(str).str.lower() == control_group.lower(),
+            "subject",
+        ]
+        if not controls.empty:
+            control_ids = {_normalize_subject_id(s) for s in controls}
+            control_ai = cohort_ai.loc[
+                cohort_ai["subject"].map(_normalize_subject_id).isin(control_ids)
+            ]
+
+    for subj in subjects:
+        prefix = subject_file_prefix(subj.folder_name)
+        sid = subj.subject_id
+        ai_path = strength_ps / f"{prefix}_ai.csv"
+        if not ai_path.is_file():
+            continue
+        ai = pd.read_csv(ai_path)
+
+        soz_side = soz_side_for_subject(participants, sid)
+        if soz_side in ("L", "R"):
+            soz_df = pair_soz_ai_table(sid, ai, soz_side)
+            soz_df.to_csv(strength_ps / f"{prefix}_soz_ai.csv", index=False)
+
+        if model is not None:
+            strength = pd.read_csv(strength_ps / f"{prefix}_strength.csv")
+            from nodestrength.dk_clinical import subject_metadata
+            meta = subject_metadata(participants, sid)
+            z_df = strength_z_pair_table(sid, strength, model, meta)
+            if not control_ai.empty:
+                z_ai = side_ai_z_from_controls(ai, control_ai)
+                z_df = z_df.merge(z_ai[["roi_name", "side_ai_z"]], on="roi_name", how="left")
+            z_df.to_csv(strength_ps / f"{prefix}_strength_z.csv", index=False)
+
+    return model_out
 
 
 def _validate_connectome(W: np.ndarray, subject_id: str) -> List[str]:
@@ -127,32 +225,57 @@ def _strength_vs_volume_table(strength_ai: pd.DataFrame,
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", required=True, type=Path,
-                   help="Directory containing sub-*/dk_connectome.csv files.")
+                   help="Directory containing one folder per subject with connectome CSV.")
     p.add_argument("--out", required=True, type=Path,
                    help="Output directory for node_strength_results (will be created).")
+    p.add_argument("--fs-root", type=Path, default=None,
+                   help="Optional FreeSurfer SUBJECTS_DIR (for dk_nodes.mif lookup).")
     p.add_argument("--include", nargs="*", default=None,
                    help="Restrict to these subject IDs (with or without 'sub-' prefix).")
     p.add_argument("--with-volume-ai", action="store_true",
                    help="Also compute ROI volumes from dk_nodes.mif and volume AI.")
+    p.add_argument("--report", action="store_true",
+                   help="Write minimal clinical PDF per subject under reports/.")
+    p.add_argument("--no-report", action="store_true",
+                   help="Skip clinical PDF reports.")
+    p.add_argument("--participants", type=Path, default=None,
+                   help="participants.tsv for SOZ side, group, and normative covariates.")
+    p.add_argument("--normative-model", type=Path, default=None,
+                   help="Pre-fitted DK strength normative model (.pkl). "
+                        "If omitted, fit from controls in --participants.")
+    p.add_argument("--control-group", default="control",
+                   help="Group label for normative controls (default: control).")
     args = p.parse_args(argv)
+
+    if args.no_report:
+        write_report = False
+    elif args.report:
+        write_report = True
+    else:
+        write_report = False
 
     args.out.mkdir(parents=True, exist_ok=True)
 
-    subjects = _find_subjects(args.root)
-    if args.include:
-        wanted = {s.lstrip("sub-") for s in args.include}
-        subjects = [s for s in subjects if s.name[len("sub-"):] in wanted]
+    subjects = filter_subjects(discover_subjects(args.root, args.fs_root), args.include)
     if not subjects:
         print(f"No subjects found under {args.root}", file=sys.stderr)
+        if args.fs_root:
+            print(f"(also checked FreeSurfer root {args.fs_root})", file=sys.stderr)
         return 2
 
     print(f"Found {len(subjects)} subjects under {args.root}.")
+    if args.fs_root:
+        print(f"FreeSurfer root: {args.fs_root}")
     print(f"BCT backend active: {uses_bctpy()}")
     if args.with_volume_ai:
         print("Volume AI enabled (dk_nodes.mif).")
+    if write_report:
+        print("Clinical PDF reports enabled (reports/sub-XXX/report.pdf).")
 
     strength_frames: List[pd.DataFrame] = []
     ai_frames: List[pd.DataFrame] = []
+    strength_intra_frames: List[pd.DataFrame] = []
+    ai_intra_frames: List[pd.DataFrame] = []
     volume_frames: List[pd.DataFrame] = []
     volume_ai_frames: List[pd.DataFrame] = []
     all_warns: List[str] = []
@@ -168,9 +291,10 @@ def main(argv=None) -> int:
         volume_ps = volume_dir / "per_subject"
         volume_ps.mkdir(parents=True, exist_ok=True)
 
-    for sub_dir in subjects:
-        sid = sub_dir.name[len("sub-"):]
-        W = load_connectome(sub_dir / "dk_connectome.csv")
+    for subj in subjects:
+        sid = subj.subject_id
+        prefix = subject_file_prefix(subj.folder_name)
+        W = load_connectome(subj.connectome_csv)
         warns = _validate_connectome(W, sid)
         all_warns.extend(warns)
         for w in warns:
@@ -180,39 +304,46 @@ def main(argv=None) -> int:
         st = _node_table(sid, s_vec, "strength")
         ai = _pair_ai_table(sid, s_vec, "L_strength", "R_strength")
 
-        st.to_csv(strength_ps / f"sub-{sid}_strength.csv", index=False)
-        ai.to_csv(strength_ps / f"sub-{sid}_ai.csv", index=False)
+        s_intra = intrahemispheric_strengths_und(W)
+        st_intra = _node_table(sid, s_intra, "strength_intra")
+        ai_intra = _pair_ai_table(sid, s_intra, "L_strength_intra", "R_strength_intra")
+
+        st.to_csv(strength_ps / f"{prefix}_strength.csv", index=False)
+        ai.to_csv(strength_ps / f"{prefix}_ai.csv", index=False)
+        st_intra.to_csv(strength_ps / f"{prefix}_strength_intra.csv", index=False)
+        ai_intra.to_csv(strength_ps / f"{prefix}_ai_intra.csv", index=False)
         strength_frames.append(st)
         ai_frames.append(ai)
+        strength_intra_frames.append(st_intra)
+        ai_intra_frames.append(ai_intra)
 
         thal = ai[ai["roi_name"] == "Thalamus-Proper"]
         if len(thal):
             t = thal.iloc[0]
-            msg = (f"  sub-{sid}: thalamus strength L={t['L_strength']:.1f}, "
-                   f"R={t['R_strength']:.1f}, side_ai={t['side_ai']:+.4f}")
-            if args.with_volume_ai:
-                mif_path = sub_dir / "dk_nodes.mif"
-                if mif_path.is_file():
-                    try:
-                        v_vec = compute_dk_volumes_mm3(mif_path)
-                        vt = _pair_ai_table(sid, v_vec, "L_volume_mm3", "R_volume_mm3")
-                        vrow = vt[vt["roi_name"] == "Thalamus-Proper"].iloc[0]
-                        msg += (f" | volume L={vrow['L_volume_mm3']:.1f}, "
-                                f"R={vrow['R_volume_mm3']:.1f}, "
-                                f"side_ai={vrow['side_ai']:+.4f}")
-                    except Exception:
-                        pass
+            ti = ai_intra[ai_intra["roi_name"] == "Thalamus-Proper"].iloc[0]
+            msg = (f"  {prefix}: thalamus strength L={t['L_strength']:.1f}, "
+                   f"R={t['R_strength']:.1f}, side_ai={t['side_ai']:+.4f}, "
+                   f"intra_ai={ti['side_ai']:+.4f}")
+            if args.with_volume_ai and subj.label_mif is not None:
+                try:
+                    v_vec = compute_dk_volumes_mm3(subj.label_mif)
+                    vt = _pair_ai_table(sid, v_vec, "L_volume_mm3", "R_volume_mm3")
+                    vrow = vt[vt["roi_name"] == "Thalamus-Proper"].iloc[0]
+                    msg += (f" | volume L={vrow['L_volume_mm3']:.1f}, "
+                            f"R={vrow['R_volume_mm3']:.1f}, "
+                            f"side_ai={vrow['side_ai']:+.4f}")
+                except Exception:
+                    pass
             print(msg)
 
         if args.with_volume_ai:
-            mif_path = sub_dir / "dk_nodes.mif"
-            if not mif_path.is_file():
+            if subj.label_mif is None:
                 w = f"{sid}: dk_nodes.mif not found — skipping volume AI"
                 all_warns.append(w)
                 print(f"  WARN: {w}")
                 continue
             try:
-                v_vec = compute_dk_volumes_mm3(mif_path)
+                v_vec = compute_dk_volumes_mm3(subj.label_mif)
             except Exception as exc:
                 w = f"{sid}: failed to read dk_nodes.mif: {exc}"
                 all_warns.append(w)
@@ -221,19 +352,36 @@ def main(argv=None) -> int:
 
             vol = _node_table(sid, v_vec, "volume_mm3")
             vai = _pair_ai_table(sid, v_vec, "L_volume_mm3", "R_volume_mm3")
-            vol.to_csv(volume_ps / f"sub-{sid}_volume.csv", index=False)
-            vai.to_csv(volume_ps / f"sub-{sid}_volume_ai.csv", index=False)
+            vol.to_csv(volume_ps / f"{prefix}_volume.csv", index=False)
+            vai.to_csv(volume_ps / f"{prefix}_volume_ai.csv", index=False)
             volume_frames.append(vol)
             volume_ai_frames.append(vai)
 
     cohort_strength = pd.concat(strength_frames, ignore_index=True)
     cohort_ai = pd.concat(ai_frames, ignore_index=True)
+    cohort_strength_intra = pd.concat(strength_intra_frames, ignore_index=True)
+    cohort_ai_intra = pd.concat(ai_intra_frames, ignore_index=True)
     cohort_strength.to_csv(strength_dir / "node_strength_cohort.csv", index=False)
     cohort_ai.to_csv(strength_dir / "asymmetry_index_cohort.csv", index=False)
+    cohort_strength_intra.to_csv(strength_dir / "node_strength_intra_cohort.csv", index=False)
+    cohort_ai_intra.to_csv(strength_dir / "asymmetry_index_intra_cohort.csv", index=False)
     _ai_summary(cohort_ai, strength_dir / "cohort_summary.csv")
+    _ai_summary(cohort_ai_intra, strength_dir / "cohort_intra_summary.csv")
+
+    clinical_model_path = _write_clinical_derivatives(
+        args.out,
+        subjects,
+        cohort_strength,
+        cohort_ai,
+        participants_path=args.participants,
+        normative_model_path=args.normative_model,
+        control_group=args.control_group,
+    )
 
     manifest = {
-        "subjects": [s.name for s in subjects],
+        "connectome_root": str(args.root),
+        "fs_root": str(args.fs_root) if args.fs_root else None,
+        "subjects": [s.folder_name for s in subjects],
         "n_subjects": len(subjects),
         "bct_backend": uses_bctpy(),
         "atlas": "Desikan-Killiany (MRtrix3 fs_default labelconvert)",
@@ -242,10 +390,12 @@ def main(argv=None) -> int:
             "strength": "strength/ — per-subject strength + strength AI and cohort tables",
             "volume": "volume/ — per-subject volume + volume AI (with --with-volume-ai)",
             "compare": "compare/ — cross-modality tables (with --with-volume-ai)",
+            "reports": "reports/ — minimal clinical PDF per subject (with --report)",
         },
         "ai_formulas": {
             "side_ai": "(L - R) / (L + R)",
             "log_ai":  "ln(L / R)",
+            "intrahemispheric_strength": "row sum of connectome edges within the same hemisphere only",
         },
         "volume_ai_enabled": args.with_volume_ai,
         "caveats": [
@@ -255,6 +405,12 @@ def main(argv=None) -> int:
         ],
         "warnings": all_warns,
     }
+    if args.participants:
+        manifest["participants"] = str(args.participants)
+        manifest["control_group"] = args.control_group
+    if clinical_model_path is not None:
+        manifest["normative_strength_model"] = str(
+            clinical_model_path.relative_to(args.out))
 
     if args.with_volume_ai and volume_frames:
         cohort_volume = pd.concat(volume_frames, ignore_index=True)
@@ -277,13 +433,32 @@ def main(argv=None) -> int:
 
     (args.out / "manifest.json").write_text(json.dumps(manifest, indent=2))
 
-    _write_readme(args.out, len(subjects), all_warns, args.with_volume_ai)
+    if write_report:
+        from nodestrength.clinical_report import SubjectReportInput, generate_cohort_reports
+        report_paths = generate_cohort_reports(
+            args.out,
+            [
+                SubjectReportInput(
+                    folder_name=s.folder_name,
+                    connectome_csv=s.connectome_csv,
+                    subject_dir=s.subject_dir,
+                )
+                for s in subjects
+            ],
+        )
+        manifest["clinical_reports"] = [str(p.relative_to(args.out)) for p in report_paths]
+        manifest["n_clinical_reports"] = len(report_paths)
+        (args.out / "manifest.json").write_text(json.dumps(manifest, indent=2))
+        for p in report_paths:
+            print(f"  report: {p}")
+
+    _write_readme(args.out, len(subjects), all_warns, args.with_volume_ai, write_report)
     print(f"\nWrote results to {args.out}")
     return 0
 
 
 def _write_readme(out_dir: Path, n_subjects: int, warnings: List[str],
-                  with_volume_ai: bool) -> None:
+                  with_volume_ai: bool, with_report: bool = False) -> None:
     volume_section = ""
     volume_cohort = ""
     compare_cohort = ""
@@ -327,9 +502,21 @@ Columns: `subject`, `roi_name`, `region_type`, `L_index`, `R_index`,
             "- **Volume from dk_nodes.mif** — tractography grid, not FreeSurfer segstats.\n"
         )
 
+    report_section = ""
+    if with_report:
+        report_section = """
+## Clinical reports (`reports/`)
+
+| File | Contents |
+|------|----------|
+| `reports/sub-XXX/report.pdf` | One-page summary + brain maps (tables + figures) |
+| `reports/sub-XXX/figures/` | PNG figures (cortical asymmetry map, subcortical panel) |
+
+"""
+
     text = f"""# node_strength_results — node strength + asymmetry index
 
-Generated by `dk-ai-cohort` (from the `nodestrength` package / container image).
+Generated by `dkt-ai-cohort` (from the `nodestrength` package / container image).
 
 ## Folder layout
 
@@ -346,7 +533,7 @@ node_strength_results/
 └── compare/           # optional (--with-volume-ai)
     └── strength_vs_volume_ai.csv
 ```
-
+{report_section}
 Shared docs (`README.md`, `manifest.json`, `nodestrength.md`, …) live at the
 root of this folder.
 
@@ -354,7 +541,7 @@ root of this folder.
 
 | File | Description |
 |------|-------------|
-| **`nodestrength.docx`** | Full pipeline documentation (analysis + Gugger Lab runbook). Start here. |
+| **`nodestrength.docx`** | Full pipeline documentation (regenerate locally from `nodestrength.md`). |
 | **`paper.md`** | Summary of Piper et al. 2026 — question, findings, key ideas |
 | **`BCT.md`** | Brain Connectivity Toolbox — node strength and `strengths_und` |
 | This `README.md` | Short summary of inputs, outputs, and caveats for this results folder |
@@ -365,7 +552,8 @@ Per-subject file definitions, sources, and limitations: **§12** in `nodestrengt
 ## Input
 
 - Parcellation: **Desikan-Killiany** (MRtrix3 `fs_default.txt`, 84 nodes).
-- Connectome: 84×84, SIFT2-weighted streamline counts from
+- Connectome file: **`dkt_connectome.csv`** per subject (84×84, SIFT2-weighted).
+- Connectome matrix: 84×84, SIFT2-weighted streamline counts from
   `tck2connectome -symmetric -zero_diagonal`.
 - Pipeline upstream: QSIPrep → FreeSurfer → QSIRecon → DK labelconvert.
 - Subjects processed: **{n_subjects}**.
@@ -417,9 +605,10 @@ Columns: `subject`, `roi_name`, `region_type`, `L_index`, `R_index`,
 
 ## Caveats
 
-- **Raw values** — not normative z-scores (no age/sex/motion/mean-brain adjustment).
+- **`_ai.csv` is raw asymmetry** — normative z-scores are in `_strength_z.csv`
+  when `--participants` includes controls (or `--normative-model` is supplied).
 - **DK whole thalamus** — not THOMAS nuclei (AV/CM/MDPf/PUL). See Piper 2026.
-- **No SOZ-AI** — `soz_ai` not computed unless SOZ side is supplied separately.
+- **SOZ AI** — written to `_soz_ai.csv` when SOZ side is in `--participants`.
 {volume_caveat}
 ## Validation warnings
 """

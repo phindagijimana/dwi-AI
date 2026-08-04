@@ -84,8 +84,8 @@ per-ROI scalar analysed after normative z-scoring ([`paper.md`](paper.md)).
 | **Output** | Length-N vector; `s[i]` = strength of node `i` |
 | **Implementation** | `sum(CIJ, axis=0)` in MATLAB/Python (row sum) |
 
-This is the **only BCT function required** for the Gugger Lab DK cohort runner
-(`scripts/run_dk_ai_cohort.py`). All 84 DK node strengths come from one call.
+This is the **only BCT function required** for the DK cohort runner
+(`dkt-ai-cohort`). All 84 DK node strengths come from one call.
 
 ### Worked example (3 nodes)
 
@@ -120,9 +120,9 @@ cfg = StrengthConfig(exclude_self=True, exclude_inter_thalamic=True)
 strengths = compute_nucleus_strength(W, node_lookup, config=cfg)
 ```
 
-### DK cohort (Gugger Lab)
+### DK cohort
 
-`run_dk_ai_cohort.py` applies **`strengths_und` to the full 84×84 matrix** with
+`dkt-ai-cohort` applies **`strengths_und` to the full 84×84 matrix** with
 no inter-thalamic mask (DK has one thalamus node per hemisphere, not THOMAS
 subnuclei). Diagonal is already zero from `tck2connectome`.
 

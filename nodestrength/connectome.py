@@ -44,6 +44,27 @@ def _strengths_und(W: np.ndarray) -> np.ndarray:
     return W.sum(axis=0)
 
 
+def dk_intrahemispheric_edge_mask(n: int = 84) -> np.ndarray:
+    """Boolean mask: True for same-hemisphere off-diagonal DK edges (84×84)."""
+    from nodestrength.dk_atlas import build_dk_nodes
+
+    if n != 84:
+        raise ValueError(f"DK intrahemispheric mask requires n=84, got {n}")
+    sides = np.array([node.side for node in build_dk_nodes()])
+    same = sides[:, None] == sides[None, :]
+    np.fill_diagonal(same, False)
+    return same
+
+
+def intrahemispheric_strengths_und(W: np.ndarray) -> np.ndarray:
+    """Node strength using only within-hemisphere edges (L↔L and R↔R)."""
+    if W.shape[0] != W.shape[1]:
+        raise ValueError("Connectome must be square")
+    keep = dk_intrahemispheric_edge_mask(W.shape[0])
+    masked = np.where(keep, W, 0.0)
+    return _strengths_und(masked)
+
+
 def uses_bctpy() -> bool:
     """Whether ``bctpy`` is being used for node-strength computation."""
     return _HAS_BCT

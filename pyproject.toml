@@ -14,16 +14,28 @@ dependencies = [
     "pandas>=1.5",
     "scipy>=1.10",
     "nibabel>=5.0",
+    "reportlab>=4.0",
+    "matplotlib>=3.7",
+    "nilearn>=0.10.2,<0.14",
 ]
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]
 bct = ["bctpy>=0.5"]
+viz = [
+    "vtk>=9.1,<9.3; python_version<'3.12'",
+    "vtk>=9.3,<9.4; python_version>='3.12'",
+    "enigmatoolbox @ git+https://github.com/MICA-MNI/ENIGMA.git",
+]
 
 [project.scripts]
 nodestrength = "nodestrength.cli:main"
+dkt-ai-cohort = "nodestrength.dk_cohort:main"
 dk-ai-cohort = "nodestrength.dk_cohort:main"
 
 [tool.setuptools.packages.find]
 include = ["nodestrength*"]
 exclude = ["tests*", "scripts*"]
+
+[tool.setuptools.package-data]
+nodestrength = ["data/parcellations/*.csv"]

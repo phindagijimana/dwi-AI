@@ -34,8 +34,8 @@ Runtime deps: `numpy`, `pandas`, `scipy`, `nibabel`. Optional: `bctpy` (enables 
 ### A. DK connectomes (QSIPrep → QSIRecon → labelconvert)
 
 ```bash
-python scripts/run_dk_ai_cohort.py \
-    --root /path/to/dk_connectomes \
+python scripts/run_dkt_ai_cohort.py \
+    --root /path/to/dkt_connectomes \
     --out  /path/to/node_strength_results
 ```
 
@@ -49,11 +49,25 @@ node_strength_results/
 ```
 
 ```bash
-python scripts/run_dk_ai_cohort.py \
-    --root /path/to/dk_connectomes \
+python scripts/run_dkt_ai_cohort.py \
+    --root /path/to/dkt_connectomes \
     --out  /path/to/node_strength_results \
     --with-volume-ai   # optional
 ```
+
+**Clinical PDF** (lean clinician summary — tables + two figures):
+
+```bash
+python scripts/run_dkt_ai_cohort.py \
+    --root /path/to/dkt_connectomes \
+    --out  /path/to/node_strength_results \
+    --report
+```
+
+The PDF includes key-structure AI (strength, intra, volume), top-5 standard and
+intra asymmetry tables, a cortical |AI| map, and a subcortical panel. Optional
+`--participants` still writes research CSVs (`_soz_ai.csv`, `_strength_z.csv`) but
+those are not shown in the PDF.
 
 See **`nodestrength.md` §11–12** for the full folder layout and file definitions
 (`strength/per_subject/sub-XXX_strength.csv`, `_ai.csv`, volume, and compare).
@@ -83,27 +97,144 @@ Reports subjects discovered, ROI naming sanity, participants.tsv column map, and
 
 ## Container (standalone)
 
-Independent Apptainer/Docker image — like `freesurfer_7.4.1.sif`, no repo checkout:
+Run the analysis **without a repo checkout or Python install** — the same way you
+run FreeSurfer or qsiprep images. You only provide paths on your system:
+
+| Path | Required | Purpose |
+|---|---|---|
+| Connectomes root | yes | One folder per subject with `dkt_connectome.csv` |
+| Output directory | yes | Writable folder for results |
+| FreeSurfer `SUBJECTS_DIR` | optional | Used to find `dk_nodes.mif` when it is not beside the connectome |
+
+**Per subject** under the connectomes root (any folder name — BIDS `sub-XXX` or other IDs):
+
+| File | Required | Role |
+|---|---|---|
+| `dkt_connectome.csv` | yes | 84×84 symmetric SIFT2 connectome |
+| `dk_nodes.mif` | for volume AI | MRtrix label grid (in connectome folder or `FS/<subject>/`) |
+
+Legacy connectome filenames (`dk_connectome.csv`, `connectome.csv`) are still
+discovered automatically. The CLI alias `dk-ai-cohort` remains available.
+
+**Default run:** strength + volume + compare + one-page PDF report per subject.
+Use `--strength-only` or `--no-report` to skip parts of that.
+
+### Get the image
+
+```bash
+# Build from this repo (Apptainer/Singularity)
+bash containers/build.sh
+# → containers/nodestrength_0.1.0.sif
+
+# Pull from Docker Hub (Apptainer ORAS artifact)
+apptainer pull nodestrength_0.1.0.sif \
+  oras://index.docker.io/phindagijimana321/nodestrength:0.1.0
+```
+
+Copy `containers/run.sh` next to the `.sif` for a convenience launcher. Full
+container docs: [`containers/README.md`](containers/README.md).
+
+### Run with Apptainer
+
+```bash
+SIF=/path/to/nodestrength_0.1.0.sif
+CONNECT=/path/to/connectomes
+OUT=/path/to/results
+FS=/path/to/freesurfer/subjects   # optional
+
+mkdir -p "$OUT"
+
+apptainer run --cleanenv \
+  -B "$CONNECT:$CONNECT:ro" \
+  -B "$OUT:$OUT" \
+  ${FS:+-B "$FS:$FS:ro"} \
+  "$SIF" \
+  "$CONNECT" "$OUT" ${FS:+"$FS"}
+```
+
+Positional arguments inside the container:
+
+```
+CONNECTOME_DIR  OUTPUT_DIR  [FS_DIR]  [OPTIONS]
+```
+
+Flag form (equivalent):
 
 ```bash
 apptainer run --cleanenv \
-  -B /path/to/dk_connectomes:/path/to/dk_connectomes:ro \
-  -B /path/to/out:/path/to/out \
-  nodestrength_0.1.0.sif \
-  /path/to/dk_connectomes /path/to/out
+  -B "$CONNECT:$CONNECT:ro" -B "$OUT:$OUT" \
+  "$SIF" \
+  --root "$CONNECT" --out "$OUT" --fs-root "$FS"
 ```
 
-Build: `bash containers/build.sh` → `containers/nodestrength_0.1.0.sif`
+### Run with `run.sh`
 
-Gugger Lab shared copy:
-`/mnt/nfs/Gugger_Lab/Workflows/DWI-AI/containers/`
+```bash
+./run.sh /path/to/connectomes /path/to/results
+./run.sh /path/to/connectomes /path/to/results /path/to/freesurfer/subjects
+./run.sh /path/to/connectomes /path/to/results --strength-only
+./run.sh /path/to/connectomes /path/to/results --include 001 sub-002
+```
 
-See [`containers/README.md`](containers/README.md).
+Or via environment variables:
+
+```bash
+export CONNECTOME_ROOT=/path/to/connectomes
+export OUTPUT_DIR=/path/to/results
+export FS_ROOT=/path/to/freesurfer/subjects   # optional
+./run.sh
+```
+
+### Common options
+
+| Flag | Effect |
+|---|---|
+| `--strength-only` | Skip `volume/` and `compare/` |
+| `--no-report` | Skip `reports/` PDF summaries |
+| `--include SUB ...` | Process only listed subject IDs (with or without `sub-` prefix) |
+
+Help (no bind mounts needed):
+
+```bash
+apptainer run nodestrength_0.1.0.sif --help
+```
+
+### Outputs
+
+```
+node_strength_results/
+├── strength/per_subject/     sub-XXX_strength.csv, sub-XXX_ai.csv
+├── volume/per_subject/       sub-XXX_volume.csv, sub-XXX_volume_ai.csv  (default on)
+├── compare/                  strength_vs_volume_ai.csv
+├── reports/sub-XXX/          report.pdf + figures/ (default on)
+├── manifest.json
+└── README.md
+```
+
+Clinical PDFs include key-structure tables (with Intra AI), top-5 standard and
+intrahemispheric asymmetry tables, plus two figures: an inflated cortical
+asymmetry brain map and a subcortical strength/asymmetry panel.
+
+### Docker
+
+```bash
+docker build -t nodestrength:0.1.0 .
+docker run --rm \
+  -v /path/to/connectomes:/data/connectomes:ro \
+  -v /path/to/out:/data/out \
+  nodestrength:0.1.0 \
+  /data/connectomes /data/out
+```
+
+Image on Docker Hub: [`phindagijimana321/nodestrength`](https://hub.docker.com/r/phindagijimana321/nodestrength)
+
+See [`containers/README.md`](containers/README.md) for build, publish, and Slurm examples.
+
 
 ## Tests
 
 ```bash
-pytest -q     # 106 tests
+pytest -q     # 121 tests
 ```
 
 Coverage: BCT parity, normative GLM, mixed ANOVA, AI formulas, BIDS walker, IDEAS ingestion, DK label-ordering lock-in.
@@ -139,6 +270,17 @@ See [`node.md`](node.md) for the paper summary, formula derivations, dataset run
 ## License
 
 MIT.
+
+## Privacy / what not to commit
+
+Do **not** commit site-specific or identifying information:
+
+- Internal filesystem or SMB paths (lab shares, home directories)
+- Real subject identifiers or clinical metadata
+- Cohort-specific runbooks — use a local `nodestrength.local.md` (gitignored)
+
+Regenerate `nodestrength.docx` locally after editing `nodestrength.md`; the
+Word file is not tracked in git.
 
 ## New scripts (usage)
 

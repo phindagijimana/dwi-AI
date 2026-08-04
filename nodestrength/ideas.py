@@ -61,6 +61,8 @@ PARTICIPANT_COLUMN_ALIASES: Mapping[str, str] = {
     "patient_group":   "group",
     "soz":             "soz",
     "seizure_onset_zone": "soz",
+    "soz_side":        "soz_side",
+    "soz_hemisphere":  "soz_side",
     "histology":       "histopathology",
     "pathology":       "histopathology",
     "histopathology":  "histopathology",

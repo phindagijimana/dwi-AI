@@ -1,21 +1,21 @@
 # Other analyses on DK connectome results
 
 Companion to [`nodestrength.md`](nodestrength.md) §11–12. Summarizes what is
-**already computed** on the Gugger Lab `dwi_test2` cohort, what the
-**`node_strength` package supports but has not been run** on DK data yet, and
-what is **possible from the raw 84×84 connectome** with additional work.
+**already computed** by the default cohort runner, what the **`node_strength`
+package supports but has not been run** on your DK data yet, and what is
+**possible from the raw 84×84 connectome** with additional work.
 
 Inputs assumed per subject:
 
-- `dk_connectomes/sub-XXX/dk_connectome.csv` — 84×84 SIFT2-weighted, symmetric
-- `dk_connectomes/sub-XXX/dk_nodes.mif` — 84-node label grid (for volume)
+- `connectomes/<subject>/dkt_connectome.csv` — 84×84 SIFT2-weighted, symmetric
+- `connectomes/<subject>/dk_nodes.mif` — 84-node label grid (for volume)
 
 Current outputs: `node_strength_results/` with `strength/`, `volume/`, and
 `compare/` subfolders.
 
 ---
 
-## Already done (dwi_test2)
+## Already done (default cohort run)
 
 | Analysis | Output | Question |
 |---|---|---|
@@ -27,8 +27,8 @@ Current outputs: `node_strength_results/` with `strength/`, `volume/`, and
 Regenerate:
 
 ```bash
-python scripts/run_dk_ai_cohort.py \
-    --root /path/to/dk_connectomes \
+dkt-ai-cohort \
+    --root /path/to/connectomes \
     --out  /path/to/node_strength_results \
     --with-volume-ai
 ```
@@ -97,8 +97,8 @@ nodestrength analyze \
 ```
 
 **Needs:** sufficient sample size + group labels (patient/control, SOZ, outcome).
-With the current **5-subject** dwi_test2 cohort, inferential GLMs are
-underpowered — use for pipeline validation or wait for a larger cohort.
+Small pilot cohorts are underpowered for inferential GLMs — use for pipeline
+validation or wait for a larger sample.
 
 ### 4. Permutation diagnostics
 
@@ -122,11 +122,11 @@ FreeSurfer.
 ## Possible from the raw 84×84 connectome
 
 The connectome matrix is a full weighted graph. Analyses beyond scalar node
-strength are possible but **not all are implemented** in `run_dk_ai_cohort.py`.
+strength are possible but **not all are implemented** in `dkt-ai-cohort`.
 
 | Analysis type | Examples | Notes |
 |---|---|---|
-| **Edge-level** | Single ROI–ROI SIFT2 weights (e.g. thalamus ↔ hippocampus) | Piper tract-specific hypotheses; read directly from `dk_connectome.csv` |
+| **Edge-level** | Single ROI–ROI SIFT2 weights (e.g. thalamus ↔ hippocampus) | Piper tract-specific hypotheses; read directly from `dkt_connectome.csv` |
 | **Network metrics (BCT)** | Clustering, characteristic path length, global/local efficiency, modularity | Standard graph theory on the 84-node DK graph via `bctpy` |
 | **Hub identification** | Rank nodes by strength, betweenness, participation coefficient | Identify highly connected or central DK regions |
 | **Community structure** | Modularity optimization, community detection | Anatomical/functional modules in DK parcellation space |
@@ -134,7 +134,7 @@ strength are possible but **not all are implemented** in `run_dk_ai_cohort.py`.
 | **Thresholded networks** | Sparsify at fixed edge density or weight cutoff | Sensitivity analysis — results depend on threshold choice |
 | **Edge-wise difference maps** | Patient − control per edge, ipsi/contra projections | Exploratory whole-brain maps (Piper supplementary style) |
 | **Correlation with clinical variables** | Strength or AI vs seizure freedom, duration, ILAE | Join existing CSVs with an external clinical spreadsheet |
-| **Multivariate / ML** | Classify outcome from 84 strengths or 42 AI values | Needs larger N; high risk of overfitting at N=5 |
+| **Multivariate / ML** | Classify outcome from 84 strengths or 42 AI values | Needs larger N; high risk of overfitting on small cohorts |
 | **Longitudinal** | Δ strength or Δ AI between timepoints | Requires repeat scans and aligned parcellations |
 
 ---
@@ -146,22 +146,22 @@ strength are possible but **not all are implemented** in `run_dk_ai_cohort.py`.
 | **THOMAS thalamic nuclei** | Per-nucleus AV/CM/MDPf/PUL strength and AI — Piper-faithful thalamus analysis (DK gives whole thalamus only) |
 | **FreeSurfer `segstats` volumes** | Anatomical ROI volumes on native FreeSurfer grid (alternative to tractography-grid `dk_nodes.mif`) |
 | **Exclude inter-thalamic edges** | Already supported for THOMAS in `connectome.py`; could be adapted for DK whole-thalamus strength |
-| **Cross-modality with ASL-AI / PET-AI** | Same interhemispheric AI formula on CBF or PET — lab ASL-AI pipeline is a direct analogue |
+| **Cross-modality with perfusion/PET** | Same interhemispheric AI formula on CBF or PET — parallel to connectivity AI |
 
 See [`nodestrength.md`](nodestrength.md) §12.9 and [`paper.md`](paper.md) for
 moving toward Piper et al. 2026 inference.
 
 ---
 
-## Practical recommendations for dwi_test2 (N = 5)
+## Practical recommendations for small cohorts
 
 Full GLMs and normative models need **more subjects and controls**. Near-term
-value from the current cohort:
+value from a pilot cohort:
 
-1. **Descriptive** — cohort summaries already in `strength/cohort_summary.csv`
+1. **Descriptive** — cohort summaries in `strength/cohort_summary.csv`
    and `volume/cohort_volume_summary.csv`; inspect thalamus and other ROIs of
    interest per subject.
-2. **Edge screening** — extract specific edges from `dk_connectome.csv` (e.g.
+2. **Edge screening** — extract specific edges from `dkt_connectome.csv` (e.g.
    L/R thalamus → hippocampus, thalamus → precentral) for hypothesis-driven
    tables or plots.
 3. **Strength–volume divergence** — scatter or correlate `strength_side_ai` vs
@@ -187,7 +187,7 @@ value from the current cohort:
 
 | File | Contents |
 |---|---|
-| [`nodestrength.md`](nodestrength.md) §11 | Gugger Lab runbook, cohort status, output layout |
+| [`nodestrength.md`](nodestrength.md) §11 | Deployment workflow, output layout |
 | [`nodestrength.md`](nodestrength.md) §12 | Per-file definitions for `_strength.csv`, `_ai.csv`, volume, compare |
 | [`paper.md`](paper.md) | Piper et al. 2026 — methods and findings |
 | [`BCT.md`](BCT.md) | Node strength and BCT `strengths_und` |

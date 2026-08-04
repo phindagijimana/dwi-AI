@@ -105,8 +105,7 @@ class DkNode:
 def build_dk_nodes() -> List[DkNode]:
     """Return all 84 DK nodes in fs_default order (empirically verified).
 
-    Cross-check on two real subjects (sub-001 and sub-TBI011011 from the
-    Gugger_Lab dwi_test2 cohort) showed full agreement with this ordering.
+    Cross-check on two independent subjects showed full agreement with this ordering.
     """
     nodes: List[DkNode] = []
     idx = 1

@@ -30,6 +30,7 @@ from nodestrength.connectome import (
     per_subject_record,
     uses_bctpy,
 )
+from nodestrength.dk_inputs import find_connectome_csv
 import pandas as pd
 
 
@@ -88,10 +89,12 @@ def main(argv=None) -> int:
 
     for s in subjects:
         sid = s.name
-        conn_candidates = [s / "connectome.csv", s / "connectome.csv.gz", s / "dk_connectome.csv"]
-        conn_path = next((p for p in conn_candidates if p.exists()), None)
+        conn_path = find_connectome_csv(s)
         if conn_path is None:
-            warnings.append(f"{sid}: connectome.csv not found")
+            gz = s / "connectome.csv.gz"
+            conn_path = gz if gz.exists() else None
+        if conn_path is None:
+            warnings.append(f"{sid}: connectome CSV not found (dkt_connectome.csv, dk_connectome.csv, or connectome.csv)")
             continue
 
         lookup_path = s / "node_lookup.tsv"

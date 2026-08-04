@@ -15,11 +15,14 @@ from nodestrength.connectome import (
     StrengthConfig,
     compute_nucleus_strength,
     compute_nucleus_volume_mm3,
+    dk_intrahemispheric_edge_mask,
+    intrahemispheric_strengths_und,
     load_connectome,
     load_node_lookup,
     mean_brain_strength,
     per_subject_record,
 )
+from nodestrength.dk_atlas import build_dk_nodes
 
 
 def test_strength_matches_manual_sum(tiny_connectome, tiny_lookup):
@@ -88,6 +91,30 @@ def test_per_subject_record_shape(tiny_connectome, tiny_lookup):
     assert set(df["nucleus"]) == set(ANALYZED_NUCLEI)
     assert set(df["side"]) == {"L", "R"}
     assert (df["mean_brain_strength"] > 0).all()
+
+
+def test_intrahemispheric_strength_excludes_cross_hemisphere_edges() -> None:
+    """Intrahemispheric strength sums only same-hemisphere edges."""
+    n = 84
+    W = np.zeros((n, n))
+    nodes = build_dk_nodes()
+    left_idx = [i for i, node in enumerate(nodes) if node.side == "L"]
+    right_idx = [i for i, node in enumerate(nodes) if node.side == "R"]
+    W[left_idx[0], left_idx[1]] = 10.0
+    W[left_idx[1], left_idx[0]] = 10.0
+    W[right_idx[0], right_idx[1]] = 20.0
+    W[right_idx[1], right_idx[0]] = 20.0
+    W[left_idx[0], right_idx[0]] = 100.0
+    W[right_idx[0], left_idx[0]] = 100.0
+
+    mask = dk_intrahemispheric_edge_mask(n)
+    assert not mask[left_idx[0], right_idx[0]]
+    assert mask[left_idx[0], left_idx[1]]
+
+    intra = intrahemispheric_strengths_und(W)
+    assert intra[left_idx[0]] == pytest.approx(10.0)
+    assert intra[right_idx[0]] == pytest.approx(20.0)
+    assert intra[left_idx[0]] < W[left_idx[0]].sum()
 
 
 # ---------------------------------------------------------------------------

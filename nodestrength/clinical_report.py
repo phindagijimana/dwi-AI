@@ -234,7 +234,8 @@ def generate_clinical_report(
     story = [
         Paragraph(f"Node strength clinical summary — {prefix}", title_style),
         Paragraph(
-            f"Generated {generated} · nodestrength {version} · Desikan–Killiany (84 nodes)",
+            f"Generated {generated} · nodestrength {version} · "
+            f"DKT analysis (fs_default) · DK ENIGMA maps",
             body_style,
         ),
         Paragraph(_CLINICAL_CAVEAT, caveat_style),

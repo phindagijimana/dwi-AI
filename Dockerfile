@@ -4,7 +4,7 @@
 # Volume AI uses dk_nodes.mif on the tractography grid (pure Python .mif reader).
 #
 # Build:
-#   docker build -t dwi-ai-analysis:latest .
+#   docker build -t nodestrength:0.1.0 .
 #
 # Run (strength + volume + compare/):
 #   docker run --rm \
@@ -15,7 +15,7 @@
 #     /data/connectomes /data/out /data/freesurfer
 #
 # Strength only (skip volume/ and compare/):
-#     ... dwi-ai-analysis:latest --root ... --out ... --strength-only
+#     ... nodestrength:0.1.0 /data/connectomes /data/out --strength-only
 
 FROM python:3.11-slim-bookworm
 

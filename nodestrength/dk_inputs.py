@@ -1,4 +1,4 @@
-"""Discover DKT connectome inputs from user-provided directories (site-agnostic)."""
+"""Discover DKT analysis connectomes from user-provided directories."""
 
 from __future__ import annotations
 
@@ -6,14 +6,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Sequence, Tuple
 
-CONNECTOME_FILENAMES: Tuple[str, ...] = (
-    "dkt_connectome.csv",
-    "dk_connectome.csv",  # legacy QSIRecon naming
-    "connectome.csv",
+from nodestrength.parcellations import (
+    ANALYSIS_CONNECTOME_FILENAMES,
+    ANALYSIS_LABEL_MIF_NAMES,
 )
-LABEL_FILENAMES: Tuple[str, ...] = (
-    "dk_nodes.mif",
-)
+
+CONNECTOME_FILENAMES = ANALYSIS_CONNECTOME_FILENAMES
+LABEL_FILENAMES = ANALYSIS_LABEL_MIF_NAMES
 
 
 @dataclass(frozen=True)

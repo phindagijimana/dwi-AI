@@ -1,12 +1,13 @@
-"""Run BCT node strength + asymmetry index on a directory of DK connectomes.
+"""Run BCT node strength + asymmetry index on a directory of DKT connectomes.
 
 Expected layout under ``--root`` (any subject folder name):
 
-    <subject>/dkt_connectome.csv    84x84, symmetric, zero diagonal
-    <subject>/dk_nodes.mif          label image (required for --with-volume-ai)
+    <subject>/dkt_connectome.csv    78×78 fs_dkt connectome (DKT analysis; default)
+    <subject>/dk_connectome.csv     84×84 fs_default (legacy)
+    <subject>/nodes.mif             label image (required for --with-volume-ai)
 
-Optional ``--fs-root`` (FreeSurfer SUBJECTS_DIR) resolves ``dk_nodes.mif`` when
-it is not stored beside the connectome CSV.
+Analysis auto-detects 78-node fs_dkt (dwi_pipeline Step 4) or legacy 84-node fs_default.
+ENIGMA brain maps in ``reports/`` project values onto standard FreeSurfer DK aparc (fsa5).
 
 See ``dkt-ai-cohort --help`` and ``containers/README.md`` for container usage.
 """
@@ -29,11 +30,7 @@ from nodestrength.connectome import (
     load_connectome,
     uses_bctpy,
 )
-from nodestrength.dk_atlas import (
-    build_dk_nodes,
-    compute_dk_volumes_mm3,
-    lr_pair_table,
-)
+from nodestrength.analysis_atlas import AnalysisAtlas, node_index, resolve_analysis_atlas
 from nodestrength.dk_clinical import (
     pair_soz_ai_table,
     soz_side_for_subject,
@@ -53,6 +50,7 @@ from nodestrength.dk_inputs import (
     subject_file_prefix,
 )
 from nodestrength.ideas import load_participants
+from nodestrength.parcellations import analysis_manifest_fields
 
 
 def _write_clinical_derivatives(
@@ -135,32 +133,41 @@ def _write_clinical_derivatives(
     return model_out
 
 
-def _validate_connectome(W: np.ndarray, subject_id: str) -> List[str]:
-    """Sanity checks; returns a list of warnings (empty if all good)."""
+def _validate_connectome(W: np.ndarray, subject_id: str) -> tuple[List[str], AnalysisAtlas]:
+    """Sanity checks; returns warnings and resolved atlas."""
     warns: List[str] = []
-    if W.shape != (84, 84):
-        warns.append(f"{subject_id}: unexpected shape {W.shape}, expected (84,84)")
+    try:
+        atlas = resolve_analysis_atlas(W.shape[0])
+    except ValueError:
+        warns.append(
+            f"{subject_id}: unexpected shape {W.shape}, expected (78,78) or (84,84)"
+        )
+        raise
+    if W.shape != (atlas.n_nodes, atlas.n_nodes):
+        warns.append(f"{subject_id}: unexpected shape {W.shape}, expected ({atlas.n_nodes},{atlas.n_nodes})")
     if not np.allclose(W, W.T):
         warns.append(f"{subject_id}: connectome not symmetric")
     if not np.allclose(np.diag(W), 0):
         warns.append(f"{subject_id}: connectome has non-zero diagonal")
     if W.min() < 0:
         warns.append(f"{subject_id}: connectome has negative edges")
-    return warns
+    return warns, atlas
 
 
-def _node_table(subject_id: str, values: np.ndarray, value_col: str) -> pd.DataFrame:
+def _node_table(subject_id: str, values: np.ndarray, value_col: str,
+                atlas: AnalysisAtlas) -> pd.DataFrame:
     """Per-node table for one scalar measure (strength or volume)."""
-    nodes = build_dk_nodes()
+    nodes = atlas.build_nodes()
     rows = []
     for n in nodes:
+        idx = node_index(n)
         rows.append({
             "subject": subject_id,
-            "fs_default_index": n.fs_default_index,
+            "fs_default_index": idx,
             "name": n.name,
             "side": n.side,
             "region_type": n.region_type,
-            value_col: float(values[n.fs_default_index - 1]),
+            value_col: float(values[idx - 1]),
         })
     return pd.DataFrame(rows)
 
@@ -170,9 +177,10 @@ def _pair_ai_table(
     values: np.ndarray,
     l_col: str,
     r_col: str,
+    atlas: AnalysisAtlas,
 ) -> pd.DataFrame:
-    """Interhemispheric AI for matched L/R pairs from a length-84 value vector."""
-    pairs = lr_pair_table()
+    """Interhemispheric AI for matched L/R pairs."""
+    pairs = atlas.lr_pair_table()
     rows = []
     for _, p in pairs.iterrows():
         L = float(values[int(p["L_index"]) - 1])
@@ -277,6 +285,7 @@ def main(argv=None) -> int:
     volume_frames: List[pd.DataFrame] = []
     volume_ai_frames: List[pd.DataFrame] = []
     all_warns: List[str] = []
+    atlas_used: Optional[AnalysisAtlas] = None
 
     strength_dir = args.out / "strength"
     strength_ps = strength_dir / "per_subject"
@@ -293,18 +302,23 @@ def main(argv=None) -> int:
         sid = subj.subject_id
         prefix = subject_file_prefix(subj.folder_name)
         W = load_connectome(subj.connectome_csv)
-        warns = _validate_connectome(W, sid)
+        try:
+            warns, atlas = _validate_connectome(W, sid)
+        except ValueError:
+            print(f"  ERROR: {sid}: unsupported connectome shape {W.shape}", file=sys.stderr)
+            return 1
+        atlas_used = atlas
         all_warns.extend(warns)
         for w in warns:
             print(f"  WARN: {w}")
 
         s_vec = _strengths_und(W)
-        st = _node_table(sid, s_vec, "strength")
-        ai = _pair_ai_table(sid, s_vec, "L_strength", "R_strength")
+        st = _node_table(sid, s_vec, "strength", atlas)
+        ai = _pair_ai_table(sid, s_vec, "L_strength", "R_strength", atlas)
 
         s_intra = intrahemispheric_strengths_und(W)
-        st_intra = _node_table(sid, s_intra, "strength_intra")
-        ai_intra = _pair_ai_table(sid, s_intra, "L_strength_intra", "R_strength_intra")
+        st_intra = _node_table(sid, s_intra, "strength_intra", atlas)
+        ai_intra = _pair_ai_table(sid, s_intra, "L_strength_intra", "R_strength_intra", atlas)
 
         st.to_csv(strength_ps / f"{prefix}_strength.csv", index=False)
         ai.to_csv(strength_ps / f"{prefix}_ai.csv", index=False)
@@ -324,8 +338,8 @@ def main(argv=None) -> int:
                    f"intra_ai={ti['side_ai']:+.4f}")
             if args.with_volume_ai and subj.label_mif is not None:
                 try:
-                    v_vec = compute_dk_volumes_mm3(subj.label_mif)
-                    vt = _pair_ai_table(sid, v_vec, "L_volume_mm3", "R_volume_mm3")
+                    v_vec = atlas.compute_volumes_mm3(subj.label_mif)
+                    vt = _pair_ai_table(sid, v_vec, "L_volume_mm3", "R_volume_mm3", atlas)
                     vrow = vt[vt["roi_name"] == "Thalamus-Proper"].iloc[0]
                     msg += (f" | volume L={vrow['L_volume_mm3']:.1f}, "
                             f"R={vrow['R_volume_mm3']:.1f}, "
@@ -336,20 +350,20 @@ def main(argv=None) -> int:
 
         if args.with_volume_ai:
             if subj.label_mif is None:
-                w = f"{sid}: dk_nodes.mif not found — skipping volume AI"
+                w = f"{sid}: label MIF not found — skipping volume AI"
                 all_warns.append(w)
                 print(f"  WARN: {w}")
                 continue
             try:
-                v_vec = compute_dk_volumes_mm3(subj.label_mif)
+                v_vec = atlas.compute_volumes_mm3(subj.label_mif)
             except Exception as exc:
-                w = f"{sid}: failed to read dk_nodes.mif: {exc}"
+                w = f"{sid}: failed to read label MIF: {exc}"
                 all_warns.append(w)
                 print(f"  WARN: {w}")
                 continue
 
-            vol = _node_table(sid, v_vec, "volume_mm3")
-            vai = _pair_ai_table(sid, v_vec, "L_volume_mm3", "R_volume_mm3")
+            vol = _node_table(sid, v_vec, "volume_mm3", atlas)
+            vai = _pair_ai_table(sid, v_vec, "L_volume_mm3", "R_volume_mm3", atlas)
             vol.to_csv(volume_ps / f"{prefix}_volume.csv", index=False)
             vai.to_csv(volume_ps / f"{prefix}_volume_ai.csv", index=False)
             volume_frames.append(vol)
@@ -382,8 +396,13 @@ def main(argv=None) -> int:
         "subjects": [s.folder_name for s in subjects],
         "n_subjects": len(subjects),
         "bct_backend": uses_bctpy(),
-        "atlas": "Desikan-Killiany (MRtrix3 fs_default labelconvert)",
-        "connectome_shape": [84, 84],
+        **analysis_manifest_fields(),
+        "atlas": (
+            f"Desikan-Killiany-Tourville (MRtrix3 {atlas_used.atlas})"
+            if atlas_used else "auto-detected per subject"
+        ),
+        "connectome_shape": [atlas_used.n_nodes, atlas_used.n_nodes] if atlas_used else None,
+        "analysis_connectome_file": "dkt_connectome.csv",
         "layout": {
             "strength": "strength/ — per-subject strength + strength AI and cohort tables",
             "volume": "volume/ — per-subject volume + volume AI (with --with-volume-ai)",
@@ -550,7 +569,8 @@ Per-subject file definitions, sources, and limitations: **§12** in `nodestrengt
 
 ## Input
 
-- Parcellation: **Desikan-Killiany** (MRtrix3 `fs_default.txt`, 84 nodes).
+- Parcellation: **DKT analysis** — MRtrix3 ``fs_default`` 84-node grid from ``dkt_connectome.csv``.
+- ENIGMA figures use **DK aparc** on fsaverage5 (see ``viz_*`` fields in ``manifest.json``).
 - Connectome file: **`dkt_connectome.csv`** per subject (84×84, SIFT2-weighted).
 - Connectome matrix: 84×84, SIFT2-weighted streamline counts from
   `tck2connectome -symmetric -zero_diagonal`.

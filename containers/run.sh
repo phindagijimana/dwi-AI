@@ -19,8 +19,14 @@ VERSION="${NODESTRENGTH_VERSION:-0.1.0}"
 SIF="${SIF:-${SCRIPT_DIR}/nodestrength_${VERSION}.sif}"
 
 if [[ ! -f "$SIF" ]]; then
-  if [[ -f "${SCRIPT_DIR}/dwi-ai-analysis.sif" ]]; then
-    SIF="${SCRIPT_DIR}/dwi-ai-analysis.sif"
+  LEGACY="${SCRIPT_DIR}/dwi-ai-analysis.sif"
+  if [[ -L "$LEGACY" ]]; then
+    # Legacy name is a symlink to nodestrength_<version>.sif — same container.
+    SIF="$(readlink -f "$LEGACY")"
+  elif [[ -f "$LEGACY" ]]; then
+    echo "ERROR: ${LEGACY} is a duplicate image file." >&2
+    echo "Remove it and use nodestrength_${VERSION}.sif only (or recreate: bash containers/build.sh)" >&2
+    exit 1
   else
     echo "Missing image: $SIF" >&2
     echo "Place nodestrength_${VERSION}.sif in ${SCRIPT_DIR} or set SIF=" >&2

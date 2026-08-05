@@ -19,7 +19,18 @@ Given a square SIFT2-weighted connectome (`tck2connectome -symmetric -zero_diago
 | Normative z-score | OLS on controls (age, sex, motion, mean-brain strength), residual / σ |
 | Mixed-design GLM | Pillai's trace, partial η², nucleus × side × group/SOZ/outcome |
 
-Atlas-agnostic: built-in support for Lausanne + THOMAS (the paper's atlas) and MRtrix3 `fs_default` Desikan–Killiany (84 nodes, ordering empirically verified).
+Atlas-agnostic: built-in support for Lausanne + THOMAS (the paper's atlas) and for
+MRtrix3 `fs_default` Desikan–Killiany connectomes (**DKT analysis**, 84 nodes).
+
+### DKT vs DK
+
+| Role | Name | What it is |
+|------|------|------------|
+| **Analysis** | DKT | `dkt_connectome.csv` on the MRtrix `fs_default` 84-node grid — strength, AI, volume |
+| **Visualization** | DK | FreeSurfer aparc on fsaverage5 + ENIGMA subcortical surfaces for report figures |
+
+ROI names are shared; ENIGMA maps are the DK-side adapter (`nodestrength.parcellations`,
+`nodestrength.report_viz`). Legacy `dk_connectome.csv` is still read for analysis.
 
 ## Data privacy
 
@@ -265,7 +276,9 @@ nodestrength/
   stats.py         Pillai's trace + partial η²
   asymmetry.py     three AI formulas
   atlases.py       THOMAS labels
-  dk_atlas.py      Desikan–Killiany / fs_default
+  parcellations.py DKT analysis vs DK ENIGMA viz roles
+  dk_atlas.py      fs_default 84-node grid (DKT analysis)
+  report_viz.py    DK aparc/fsa5 + ENIGMA figure adapter
   bids.py          generic BIDS walker
   ideas.py         IDEAS dataset adapter
   inspect.py       readiness probe

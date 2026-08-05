@@ -61,11 +61,12 @@ Outputs per subject:
   reports/<subject>/report.pdf   lean clinical summary PDF
 
 Inputs per subject folder under CONNECTOME_DIR:
-  dkt_connectome.csv  required — 84x84 symmetric connectome per subject folder
-  dk_nodes.mif        optional — under connectome folder or FS_DIR/<subject>/
+  dkt_connectome.csv  required — 78×78 fs_dkt (default) or legacy 84×84 fs_default
+  nodes.mif / dk_nodes.mif  optional — MRtrix label grid for volume AI
 
 Legacy connectome names still accepted: dk_connectome.csv, connectome.csv.
-Package CLI inside the image: dkt-ai-cohort, nodestrength (dk-ai-cohort alias)
+Analysis: DKT (fs_default). Report maps: DK aparc / ENIGMA (fsa5).
+Package CLI: dkt-ai-cohort (dk-ai-cohort legacy alias)
 EOF
 }
 

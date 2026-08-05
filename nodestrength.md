@@ -384,11 +384,23 @@ python scripts/verify_dk_labels.py \
 - Taylor PN et al. *Open diffusion MRI and connectivity data for epilepsy and surgery: IDEAS II release.* Epilepsia (2026).
 - Tournier J-D et al. *MRtrix3: A fast, flexible and open software framework for medical image processing and visualisation.* NeuroImage 202:116137 (2019).
 
-## 11. Deployment and cohort workflow
+## 11. DKT cohort workflow (analysis) and DK ENIGMA maps (visualization)
 
 Generic notes for running `dkt-ai-cohort` on Desikan–Killiany connectomes at any
-site. Keep institution-specific paths, cohort lists, and subject identifiers in
-a local file such as `nodestrength.local.md` (gitignored).
+site. **Analysis** uses `dkt_connectome.csv` on the MRtrix `fs_default` 84-node
+grid (**DKT**). **Report figures** map the same ROI names onto FreeSurfer **DK**
+aparc on fsaverage5 and ENIGMA subcortical surfaces (`nodestrength.parcellations`,
+`nodestrength.report_viz`).
+
+Keep institution-specific paths and subject identifiers in a local file such as
+`nodestrength.local.md` (gitignored).
+
+| Layer | Scheme | Key artifacts |
+|-------|--------|----------------|
+| Strength / AI / volume | **DKT** | `dkt_connectome.csv`, `dk_atlas`, `dkt-ai-cohort` |
+| Cortical / subcortical maps | **DK** | `aparc_fsa5.csv`, ENIGMA Toolbox (optional) |
+
+Legacy `dk_connectome.csv` is still accepted when `dkt_connectome.csv` is absent.
 
 ### 11.1 Upstream imaging pipeline
 

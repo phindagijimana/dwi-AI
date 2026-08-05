@@ -45,12 +45,11 @@ def _strengths_und(W: np.ndarray) -> np.ndarray:
 
 
 def dk_intrahemispheric_edge_mask(n: int = 84) -> np.ndarray:
-    """Boolean mask: True for same-hemisphere off-diagonal DK edges (84×84)."""
-    from nodestrength.dk_atlas import build_dk_nodes
+    """Boolean mask: True for same-hemisphere off-diagonal edges (78×78 or 84×84)."""
+    from nodestrength.analysis_atlas import resolve_analysis_atlas
 
-    if n != 84:
-        raise ValueError(f"DK intrahemispheric mask requires n=84, got {n}")
-    sides = np.array([node.side for node in build_dk_nodes()])
+    atlas = resolve_analysis_atlas(n)
+    sides = atlas.sides()
     same = sides[:, None] == sides[None, :]
     np.fill_diagonal(same, False)
     return same

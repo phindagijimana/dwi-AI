@@ -7,12 +7,17 @@ the `.sif`, mount data paths, run — **no repo checkout or Python env required*
 
 | Artifact | Purpose |
 |---|---|
-| `nodestrength_0.1.0.sif` | Versioned image (canonical name) |
+| `nodestrength_0.1.0.sif` | **The** analysis image (canonical; only real file) |
+| `dwi-ai-analysis.sif` | Symlink → `nodestrength_0.1.0.sif` (legacy alias; not a second container) |
 | `run.sh` | Standalone launcher (copy beside the `.sif`) |
-| `dwi-ai-analysis.sif` | Symlink to versioned name (backward compatible) |
+| `verify-image.sh` | Assert one image on disk (no duplicate legacy copy) |
 
-**Default run:** strength + volume + compare + clinical PDF with ENIGMA-style brain maps.
-Cortical inflated surfaces render via nilearn; subcortical 3D surfaces need ENIGMA Toolbox
+There is **one** nodestrength container. The `dwi-ai-analysis` name exists only as a
+backward-compatible symlink created by `build.sh`. After every build, run
+`bash containers/verify-image.sh` to confirm.
+
+**Default run:** strength + volume + compare + clinical PDF with DK ENIGMA brain maps.
+Cortical inflated surfaces use FreeSurfer DK aparc (fsa5); subcortical 3D surfaces need ENIGMA Toolbox
 (included in the container build). Use `--strength-only` to skip volume.
 
 ---

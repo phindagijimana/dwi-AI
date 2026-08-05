@@ -1,4 +1,4 @@
-"""ENIGMA-style clinical figures from nodestrength CSV outputs."""
+"""ENIGMA-style clinical figures — DK aparc/fsa5 visualization of DKT analysis CSVs."""
 
 from __future__ import annotations
 
@@ -14,29 +14,23 @@ import numpy as np
 import pandas as pd
 
 from nodestrength.connectome import load_connectome
-from nodestrength.dk_atlas import _CORTEX, lr_pair_table
+from nodestrength.dk_atlas import _CORTEX
+from nodestrength.analysis_atlas import AnalysisAtlas, atlas_for_connectome
 from nodestrength.dk_inputs import subject_file_prefix
 from nodestrength.fs_anatomy import find_aparc_seg, fs_subcortical_volumes_mm3
+from nodestrength.parcellations import (
+    APARC_FSA5_PATH,
+    DK_ENIGMA_SUBCORTICAL_ORDER,
+    VIZ_FSA5_VERTS_PER_HEMI,
+)
 
 logger = logging.getLogger(__name__)
 
-_APARC_FSA5_PATH = (
-    Path(__file__).resolve().parent / "data" / "parcellations" / "aparc_fsa5.csv"
-)
-_FSA5_VERTS_PER_HEMI = 10242
+_APARC_FSA5_PATH = APARC_FSA5_PATH
+_FSA5_VERTS_PER_HEMI = VIZ_FSA5_VERTS_PER_HEMI
+_ENIGMA_SCTX_NAMES = DK_ENIGMA_SUBCORTICAL_ORDER
 
-# ENIGMA subcortical viewer order (L then R; ventricles omitted).
-_ENIGMA_SCTX_NAMES: Tuple[str, ...] = (
-    "Accumbens-area",
-    "Amygdala",
-    "Caudate",
-    "Hippocampus",
-    "Pallidum",
-    "Putamen",
-    "Thalamus-Proper",
-)
-
-# fs_default 1-based indices for seed-based connectivity profiles.
+# Legacy fs_default 1-based seed indices (84-node); prefer atlas.seed_indices.
 _SEED_INDICES: Dict[str, Tuple[int, int]] = {
     "thalamus": (36, 43),
     "hippocampus": (40, 47),
@@ -83,16 +77,18 @@ def _load_intra_ai(results_dir: Path, prefix: str) -> Optional[pd.DataFrame]:
 
 
 def _cortical_strength_by_side(strength: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, List[str]]:
-    labels = list(_CORTEX)
-    left = np.array([
-        float(strength.loc[strength["name"] == f"L.{n}", "strength"].iloc[0])
-        for n in labels
-    ])
-    right = np.array([
-        float(strength.loc[strength["name"] == f"R.{n}", "strength"].iloc[0])
-        for n in labels
-    ])
-    return left, right, labels
+    left: List[float] = []
+    right: List[float] = []
+    present: List[str] = []
+    for n in _CORTEX:
+        l_rows = strength.loc[strength["name"] == f"L.{n}", "strength"]
+        r_rows = strength.loc[strength["name"] == f"R.{n}", "strength"]
+        if l_rows.empty or r_rows.empty:
+            continue
+        present.append(n)
+        left.append(float(l_rows.iloc[0]))
+        right.append(float(r_rows.iloc[0]))
+    return np.asarray(left), np.asarray(right), present
 
 
 def _subcortical_vectors(
@@ -340,14 +336,15 @@ def plot_standard_vs_intra_ai(
     return _save_fig(out_path)
 
 
-def _seed_cortical_targets(W: np.ndarray, seed_index: int) -> pd.DataFrame:
-    """Connectivity from one seed node to all cortical DK regions."""
+def _seed_cortical_targets(W: np.ndarray, seed_index: int,
+                           atlas: AnalysisAtlas) -> pd.DataFrame:
+    """Connectivity from one seed node to all cortical regions in this atlas."""
     row = W[seed_index - 1]
     rows = []
-    for i, name in enumerate(_CORTEX, start=1):
-        rows.append({"region": name, "side": "L", "weight": float(row[i - 1])})
-    for i, name in enumerate(_CORTEX, start=50):
-        rows.append({"region": name, "side": "R", "weight": float(row[i - 1])})
+    for idx, name in atlas.left_cortex_indices():
+        rows.append({"region": name, "side": "L", "weight": float(row[idx - 1])})
+    for idx, name in atlas.right_cortex_indices():
+        rows.append({"region": name, "side": "R", "weight": float(row[idx - 1])})
     return pd.DataFrame(rows)
 
 
@@ -357,12 +354,14 @@ def plot_seed_profile(
     seed_key: str,
     *,
     top_n: int = 12,
+    atlas: Optional[AnalysisAtlas] = None,
 ) -> Path:
     """Top cortical targets from L/R seed nodes (thalamus, hippocampus, amygdala)."""
-    l_idx, r_idx = _SEED_INDICES[seed_key]
+    atlas = atlas or atlas_for_connectome(connectome_csv)
+    l_idx, r_idx = atlas.seed_indices[seed_key]
     W = load_connectome(connectome_csv)
-    l_df = _seed_cortical_targets(W, l_idx)
-    r_df = _seed_cortical_targets(W, r_idx)
+    l_df = _seed_cortical_targets(W, l_idx, atlas)
+    r_df = _seed_cortical_targets(W, r_idx, atlas)
 
     def _top(df: pd.DataFrame) -> pd.DataFrame:
         return df.nlargest(top_n, "weight").sort_values("weight")
@@ -402,10 +401,12 @@ def plot_homotopic_interhemispheric(
     out_path: Path,
     *,
     top_n: int = 15,
+    atlas: Optional[AnalysisAtlas] = None,
 ) -> Path:
     """Homotopic L↔R cortical edge weights (interhemispheric callosal proxies)."""
+    atlas = atlas or atlas_for_connectome(connectome_csv)
     W = load_connectome(connectome_csv)
-    pairs = lr_pair_table()
+    pairs = atlas.lr_pair_table()
     cortex_pairs = pairs.loc[pairs["region_type"] == "cortex"].copy()
     weights = []
     for row in cortex_pairs.itertuples():
@@ -496,19 +497,25 @@ def plot_strength_vs_volume_scatter(
 def plot_connectome_heatmap(
     connectome_csv: Path,
     out_path: Path,
+    *,
+    atlas: Optional[AnalysisAtlas] = None,
 ) -> Path:
-    """Cortical 34×34 block heatmap (left hemisphere) from connectome."""
+    """Left-hemisphere cortical block heatmap from connectome."""
+    atlas = atlas or atlas_for_connectome(connectome_csv)
     W = load_connectome(connectome_csv)
-    block = W[0:34, 0:34]
-    labels = [_short_label(n, 10) for n in _CORTEX]
+    lh = atlas.left_cortex_indices()
+    idxs = [i - 1 for i, _ in lh]
+    block = W[np.ix_(idxs, idxs)]
+    labels = [_short_label(n, 10) for _, n in lh]
+    n_ctx = len(lh)
     fig, ax = plt.subplots(figsize=(9, 8))
     vmax = float(np.percentile(block[block > 0], 95)) if np.any(block > 0) else 1.0
     im = ax.imshow(block, cmap="Blues", vmin=0, vmax=max(vmax, 1e-6))
-    ax.set_xticks(range(34))
-    ax.set_yticks(range(34))
+    ax.set_xticks(range(n_ctx))
+    ax.set_yticks(range(n_ctx))
     ax.set_xticklabels(labels, rotation=90, fontsize=5)
     ax.set_yticklabels(labels, fontsize=5)
-    ax.set_title("Left cortical connectome (34×34)", fontweight="bold")
+    ax.set_title(f"Left cortical connectome ({n_ctx}×{n_ctx})", fontweight="bold")
     fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04, label="SIFT2 weight")
     return _save_fig(out_path)
 
@@ -760,22 +767,25 @@ def generate_all_subject_figures(
         )
 
     if connectome_csv is not None and connectome_csv.is_file():
-        for seed_key in _SEED_INDICES:
+        atlas = atlas_for_connectome(connectome_csv)
+        seed_keys = atlas.seed_indices
+        for seed_key in seed_keys:
             try:
                 paths.append(plot_seed_profile(
-                    connectome_csv, fig_dir / f"{seed_key}_seed_profile.png", seed_key))
+                    connectome_csv, fig_dir / f"{seed_key}_seed_profile.png", seed_key,
+                    atlas=atlas))
             except Exception as exc:
                 logger.warning("%s seed profile failed: %s", seed_key, exc)
                 plt.close("all")
         try:
             paths.append(plot_homotopic_interhemispheric(
-                connectome_csv, fig_dir / "homotopic_interhemispheric.png"))
+                connectome_csv, fig_dir / "homotopic_interhemispheric.png", atlas=atlas))
         except Exception as exc:
             logger.warning("Homotopic plot failed: %s", exc)
             plt.close("all")
         try:
             paths.append(plot_connectome_heatmap(
-                connectome_csv, fig_dir / "connectome_heatmap.png"))
+                connectome_csv, fig_dir / "connectome_heatmap.png", atlas=atlas))
         except Exception as exc:
             logger.warning("Connectome heatmap failed: %s", exc)
             plt.close("all")
@@ -801,3 +811,8 @@ def generate_report_figures(
         fs_subject_dir=fs_subject_dir,
         use_enigma_surfaces=use_enigma_surfaces,
     )
+
+
+def map_dkt_cortical_to_dk_fsa5_vertices(values_by_region: List[float]) -> np.ndarray:
+    """Project DKT/fs_default cortical values onto DK fsa5 vertices for ENIGMA maps."""
+    return _parcel_to_fsa5_vertices(_dk_bilateral_cortical(values_by_region))

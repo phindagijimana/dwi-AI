@@ -10,6 +10,11 @@ build
 dist
 scripts/outputs
 *.pdf
+sample_report*/
+sample_report_*/
+node_strength_results/
+participants.tsv
+.claude/
 .vscode
 .idea
 *.swp

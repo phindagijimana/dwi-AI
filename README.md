@@ -21,6 +21,23 @@ Given a square SIFT2-weighted connectome (`tck2connectome -symmetric -zero_diago
 
 Atlas-agnostic: built-in support for Lausanne + THOMAS (the paper's atlas) and MRtrix3 `fs_default` Desikan–Killiany (84 nodes, ordering empirically verified).
 
+## Data privacy
+
+This repo is **public**. Do **not** commit:
+
+- Real subject IDs or `participants.tsv` with clinical metadata
+- Cohort output folders (`node_strength_results/`, `sample_report*/`, `scripts/outputs/`)
+- Absolute NFS/SMB paths from your site
+
+Use generic placeholders in docs (`/path/to/dkt_connectomes`). Before pushing:
+
+```bash
+bash scripts/check_no_phi.sh
+```
+
+Generated `manifest.json` files under an output directory record local paths for
+reproducibility on your machine — keep those directories out of git (see `.gitignore`).
+
 ## Install
 
 ```bash

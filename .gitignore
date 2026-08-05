@@ -33,3 +33,15 @@ containers/*.sif
 containers/.build-tmp/
 containers/.test-out/
 containers/.test-out-strength-only/
+
+# Local / PHI — never commit real cohort outputs, subject IDs, or site paths
+sample_report*/
+sample_report_*/
+node_strength_results/
+scripts/outputs/
+participants.tsv
+**/participants.tsv
+!tests/**/participants.tsv
+
+# IDE / agent local settings (may contain machine-specific paths)
+.claude/

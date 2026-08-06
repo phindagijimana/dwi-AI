@@ -126,6 +126,40 @@ def _write_minimal_intra(out: Path, subject: str = "001") -> None:
     pd.DataFrame(ai_rows).to_csv(strength_ps / f"sub-{subject}_ai_intra.csv", index=False)
 
 
+def _write_minimal_inter(out: Path, subject: str = "001") -> None:
+    """Interhemispheric strength + AI fixtures (subset mirrors _write_minimal_ai)."""
+    strength_ps = out / "strength" / "per_subject"
+    strength_ps.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for n in build_dk_nodes():
+        val = float(n.fs_default_index) * 200.0
+        rows.append({
+            "subject": subject,
+            "fs_default_index": n.fs_default_index,
+            "name": n.name,
+            "side": n.side,
+            "region_type": n.region_type,
+            "strength_inter": val,
+        })
+    pd.DataFrame(rows).to_csv(strength_ps / f"sub-{subject}_strength_inter.csv", index=False)
+
+    ai_rows = [
+        {"subject": subject, "roi_name": "Thalamus-Proper", "region_type": "subcortical",
+         "L_index": 36, "R_index": 43, "L_strength_inter": 15.0, "R_strength_inter": 18.0,
+         "side_ai": -0.09, "log_ai": -0.18},
+        {"subject": subject, "roi_name": "Hippocampus", "region_type": "subcortical",
+         "L_index": 40, "R_index": 47, "L_strength_inter": 8.0, "R_strength_inter": 7.0,
+         "side_ai": 0.07, "log_ai": 0.14},
+        {"subject": subject, "roi_name": "Amygdala", "region_type": "subcortical",
+         "L_index": 41, "R_index": 48, "L_strength_inter": 5.0, "R_strength_inter": 6.0,
+         "side_ai": -0.09, "log_ai": -0.18},
+        {"subject": subject, "roi_name": "insula", "region_type": "cortex",
+         "L_index": 34, "R_index": 83, "L_strength_inter": 12.0, "R_strength_inter": 11.0,
+         "side_ai": 0.04, "log_ai": 0.08},
+    ]
+    pd.DataFrame(ai_rows).to_csv(strength_ps / f"sub-{subject}_ai_inter.csv", index=False)
+
+
 def _write_connectome(path: Path) -> None:
     rng = np.random.default_rng(0)
     W = rng.random((84, 84))

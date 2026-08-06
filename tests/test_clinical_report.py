@@ -6,9 +6,15 @@ from pathlib import Path
 
 import pandas as pd
 
-from nodestrength.clinical_report import _top_asymmetry, generate_clinical_report
+from nodestrength.clinical_report import (
+    _AI_COLUMN_DEFINITIONS,
+    _key_metrics,
+    _load_report_tables,
+    _top_asymmetry,
+    generate_clinical_report,
+)
 from nodestrength.dk_clinical import load_subject_clinical_tables
-from tests.test_report_viz import _write_full_strength, _write_minimal_ai, _write_minimal_intra
+from tests.test_report_viz import _write_full_strength, _write_minimal_ai, _write_minimal_intra, _write_minimal_inter
 
 
 def _write_minimal_volume_ai(out: Path, subject: str = "001") -> None:
@@ -35,11 +41,30 @@ def test_generate_clinical_report_pdf(tmp_path: Path) -> None:
     _write_full_strength(tmp_path)
     _write_minimal_ai(tmp_path)
     _write_minimal_intra(tmp_path)
+    _write_minimal_inter(tmp_path)
     _write_minimal_volume_ai(tmp_path)
     pdf = generate_clinical_report(tmp_path, "sub-001", with_figures=False)
     assert pdf.name == "report.pdf"
     assert pdf.is_file()
     assert pdf.stat().st_size > 500
+
+
+def test_ai_column_definitions_cover_table_headers() -> None:
+    headers = ["Structure", "Str AI", "Intra AI", "Inter AI", "Vol AI"]
+    for h in headers[1:]:
+        assert h in _AI_COLUMN_DEFINITIONS
+        assert _AI_COLUMN_DEFINITIONS[h].endswith(".")
+
+
+def test_inter_ai_in_key_metrics_table(tmp_path: Path) -> None:
+    _write_minimal_ai(tmp_path)
+    _write_minimal_intra(tmp_path)
+    _write_minimal_inter(tmp_path)
+    strength_ai, intra_ai, inter_ai, volume_ai = _load_report_tables(tmp_path, "sub-001")
+    metrics, headers = _key_metrics(strength_ai, volume_ai, intra_ai, inter_ai)
+    assert headers == ["Structure", "Str AI", "Intra AI", "Inter AI", "Vol AI"]
+    thalamus = next(m for m in metrics if m["label"] == "Thalamus")
+    assert "−0.090" in thalamus["inter_ai"] or "-0.090" in thalamus["inter_ai"]
 
 
 def test_intra_ai_loaded_for_report_tables(tmp_path: Path) -> None:

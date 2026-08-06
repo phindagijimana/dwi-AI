@@ -55,11 +55,31 @@ def dk_intrahemispheric_edge_mask(n: int = 84) -> np.ndarray:
     return same
 
 
+def dk_interhemispheric_edge_mask(n: int = 84) -> np.ndarray:
+    """Boolean mask: True for cross-hemisphere (L↔R) off-diagonal edges."""
+    from nodestrength.analysis_atlas import resolve_analysis_atlas
+
+    atlas = resolve_analysis_atlas(n)
+    sides = atlas.sides()
+    cross = sides[:, None] != sides[None, :]
+    np.fill_diagonal(cross, False)
+    return cross
+
+
 def intrahemispheric_strengths_und(W: np.ndarray) -> np.ndarray:
     """Node strength using only within-hemisphere edges (L↔L and R↔R)."""
     if W.shape[0] != W.shape[1]:
         raise ValueError("Connectome must be square")
     keep = dk_intrahemispheric_edge_mask(W.shape[0])
+    masked = np.where(keep, W, 0.0)
+    return _strengths_und(masked)
+
+
+def interhemispheric_strengths_und(W: np.ndarray) -> np.ndarray:
+    """Node strength using only cross-hemisphere edges (L↔R / callosal proxies)."""
+    if W.shape[0] != W.shape[1]:
+        raise ValueError("Connectome must be square")
+    keep = dk_interhemispheric_edge_mask(W.shape[0])
     masked = np.where(keep, W, 0.0)
     return _strengths_und(masked)
 

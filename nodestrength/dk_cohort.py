@@ -26,6 +26,7 @@ import pandas as pd
 from nodestrength.asymmetry import log_ai, side_ai
 from nodestrength.connectome import (
     _strengths_und,
+    interhemispheric_strengths_und,
     intrahemispheric_strengths_und,
     load_connectome,
     uses_bctpy,
@@ -282,6 +283,8 @@ def main(argv=None) -> int:
     ai_frames: List[pd.DataFrame] = []
     strength_intra_frames: List[pd.DataFrame] = []
     ai_intra_frames: List[pd.DataFrame] = []
+    strength_inter_frames: List[pd.DataFrame] = []
+    ai_inter_frames: List[pd.DataFrame] = []
     volume_frames: List[pd.DataFrame] = []
     volume_ai_frames: List[pd.DataFrame] = []
     all_warns: List[str] = []
@@ -320,22 +323,31 @@ def main(argv=None) -> int:
         st_intra = _node_table(sid, s_intra, "strength_intra", atlas)
         ai_intra = _pair_ai_table(sid, s_intra, "L_strength_intra", "R_strength_intra", atlas)
 
+        s_inter = interhemispheric_strengths_und(W)
+        st_inter = _node_table(sid, s_inter, "strength_inter", atlas)
+        ai_inter = _pair_ai_table(sid, s_inter, "L_strength_inter", "R_strength_inter", atlas)
+
         st.to_csv(strength_ps / f"{prefix}_strength.csv", index=False)
         ai.to_csv(strength_ps / f"{prefix}_ai.csv", index=False)
         st_intra.to_csv(strength_ps / f"{prefix}_strength_intra.csv", index=False)
         ai_intra.to_csv(strength_ps / f"{prefix}_ai_intra.csv", index=False)
+        st_inter.to_csv(strength_ps / f"{prefix}_strength_inter.csv", index=False)
+        ai_inter.to_csv(strength_ps / f"{prefix}_ai_inter.csv", index=False)
         strength_frames.append(st)
         ai_frames.append(ai)
         strength_intra_frames.append(st_intra)
         ai_intra_frames.append(ai_intra)
+        strength_inter_frames.append(st_inter)
+        ai_inter_frames.append(ai_inter)
 
         thal = ai[ai["roi_name"] == "Thalamus-Proper"]
         if len(thal):
             t = thal.iloc[0]
             ti = ai_intra[ai_intra["roi_name"] == "Thalamus-Proper"].iloc[0]
+            te = ai_inter[ai_inter["roi_name"] == "Thalamus-Proper"].iloc[0]
             msg = (f"  {prefix}: thalamus strength L={t['L_strength']:.1f}, "
                    f"R={t['R_strength']:.1f}, side_ai={t['side_ai']:+.4f}, "
-                   f"intra_ai={ti['side_ai']:+.4f}")
+                   f"intra_ai={ti['side_ai']:+.4f}, inter_ai={te['side_ai']:+.4f}")
             if args.with_volume_ai and subj.label_mif is not None:
                 try:
                     v_vec = atlas.compute_volumes_mm3(subj.label_mif)
@@ -373,12 +385,17 @@ def main(argv=None) -> int:
     cohort_ai = pd.concat(ai_frames, ignore_index=True)
     cohort_strength_intra = pd.concat(strength_intra_frames, ignore_index=True)
     cohort_ai_intra = pd.concat(ai_intra_frames, ignore_index=True)
+    cohort_strength_inter = pd.concat(strength_inter_frames, ignore_index=True)
+    cohort_ai_inter = pd.concat(ai_inter_frames, ignore_index=True)
     cohort_strength.to_csv(strength_dir / "node_strength_cohort.csv", index=False)
     cohort_ai.to_csv(strength_dir / "asymmetry_index_cohort.csv", index=False)
     cohort_strength_intra.to_csv(strength_dir / "node_strength_intra_cohort.csv", index=False)
     cohort_ai_intra.to_csv(strength_dir / "asymmetry_index_intra_cohort.csv", index=False)
+    cohort_strength_inter.to_csv(strength_dir / "node_strength_inter_cohort.csv", index=False)
+    cohort_ai_inter.to_csv(strength_dir / "asymmetry_index_inter_cohort.csv", index=False)
     _ai_summary(cohort_ai, strength_dir / "cohort_summary.csv")
     _ai_summary(cohort_ai_intra, strength_dir / "cohort_intra_summary.csv")
+    _ai_summary(cohort_ai_inter, strength_dir / "cohort_inter_summary.csv")
 
     clinical_model_path = _write_clinical_derivatives(
         args.out,
@@ -413,6 +430,7 @@ def main(argv=None) -> int:
             "side_ai": "(L - R) / (L + R)",
             "log_ai":  "ln(L / R)",
             "intrahemispheric_strength": "row sum of connectome edges within the same hemisphere only",
+            "interhemispheric_strength": "row sum of connectome edges across hemispheres only (L↔R)",
         },
         "volume_ai_enabled": args.with_volume_ai,
         "caveats": [

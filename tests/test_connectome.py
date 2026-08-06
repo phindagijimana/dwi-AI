@@ -16,6 +16,8 @@ from nodestrength.connectome import (
     compute_nucleus_strength,
     compute_nucleus_volume_mm3,
     dk_intrahemispheric_edge_mask,
+    dk_interhemispheric_edge_mask,
+    interhemispheric_strengths_und,
     intrahemispheric_strengths_und,
     load_connectome,
     load_node_lookup,
@@ -115,6 +117,27 @@ def test_intrahemispheric_strength_excludes_cross_hemisphere_edges() -> None:
     assert intra[left_idx[0]] == pytest.approx(10.0)
     assert intra[right_idx[0]] == pytest.approx(20.0)
     assert intra[left_idx[0]] < W[left_idx[0]].sum()
+
+
+def test_interhemispheric_strength_uses_cross_hemisphere_edges_only() -> None:
+    """Interhemispheric strength sums only L↔R edges."""
+    n = 84
+    W = np.zeros((n, n))
+    nodes = build_dk_nodes()
+    left_idx = [i for i, node in enumerate(nodes) if node.side == "L"]
+    right_idx = [i for i, node in enumerate(nodes) if node.side == "R"]
+    W[left_idx[0], left_idx[1]] = 10.0
+    W[left_idx[1], left_idx[0]] = 10.0
+    W[left_idx[0], right_idx[0]] = 100.0
+    W[right_idx[0], left_idx[0]] = 100.0
+
+    mask = dk_interhemispheric_edge_mask(n)
+    assert mask[left_idx[0], right_idx[0]]
+    assert not mask[left_idx[0], left_idx[1]]
+
+    inter = interhemispheric_strengths_und(W)
+    assert inter[left_idx[0]] == pytest.approx(100.0)
+    assert inter[left_idx[0]] < W[left_idx[0]].sum()
 
 
 # ---------------------------------------------------------------------------

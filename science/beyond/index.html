@@ -1,0 +1,2036 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Node strength, asymmetry, and connectomics analysis for diffusion MRI">
+      
+      
+      
+        <link rel="canonical" href="https://phindagijimana.github.io/dwi-AI/science/beyond/">
+      
+      
+        <link rel="prev" href="../other-methods/">
+      
+      
+        <link rel="next" href="../statistics/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Graph theory beyond this tool - nodestrength</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#graph-theory-beyond-this-tool" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="nodestrength" class="md-header__button md-logo" aria-label="nodestrength" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            nodestrength
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Graph theory beyond this tool
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/phindagijimana/dwi-AI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    phindagijimana/dwi-AI
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../installation/" class="md-tabs__link">
+          
+  
+  
+  Installation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../preparing/" class="md-tabs__link">
+          
+  
+  
+  Usage
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../networks/" class="md-tabs__link">
+          
+  
+  
+  Science
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../about/" class="md-tabs__link">
+          
+  
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="nodestrength" class="md-nav__button md-logo" aria-label="nodestrength" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    nodestrength
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/phindagijimana/dwi-AI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    phindagijimana/dwi-AI
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Installation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../preparing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Preparing data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running nodestrength
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command-line reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Outputs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline details
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Science
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Science
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why graphs for the brain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph theory primer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../connectomics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connectomics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../strength/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node strength
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../asymmetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Asymmetry indices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../other-methods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other connectomic methods
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph theory beyond this tool
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph theory beyond this tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#local-measures-one-number-per-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local measures (one number per node)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Local measures (one number per node)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clustering-coefficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Clustering coefficient
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#local-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local efficiency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#betweenness-centrality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Betweenness centrality
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#closeness-and-harmonic-closeness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Closeness and harmonic closeness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eigenvector-pagerank-katz" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Eigenvector, PageRank, Katz
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#matching-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matching index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#within-module-degree-z-and-participation-p_i" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Within-module degree \(z\) and participation \(P_i\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mesoscale-structure-of-groups-of-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mesoscale (structure of groups of nodes)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mesoscale (structure of groups of nodes)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#community-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Community detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coreperiphery-and-rich-club" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core–periphery and rich club
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#motifs-and-k-cores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Motifs and k-cores
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-measures-one-number-per-brain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global measures (one number per brain)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spectral-methods-in-more-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spectral methods in more detail
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#random-graph-ensembles-and-statistical-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Random-graph ensembles and statistical inference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#directed-signed-temporal-higher-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directed, signed, temporal, higher-order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-package-still-only-ships-strength" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this package still only ships strength
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../statistics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Statistics we actually run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../literature/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    About
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About this project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../citing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Citing and contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing and GitHub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#local-measures-one-number-per-node" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local measures (one number per node)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Local measures (one number per node)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#clustering-coefficient" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Clustering coefficient
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#local-efficiency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Local efficiency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#betweenness-centrality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Betweenness centrality
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#closeness-and-harmonic-closeness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Closeness and harmonic closeness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eigenvector-pagerank-katz" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Eigenvector, PageRank, Katz
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#matching-index" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matching index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#within-module-degree-z-and-participation-p_i" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Within-module degree \(z\) and participation \(P_i\)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mesoscale-structure-of-groups-of-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mesoscale (structure of groups of nodes)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mesoscale (structure of groups of nodes)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#community-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Community detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#coreperiphery-and-rich-club" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core–periphery and rich club
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#motifs-and-k-cores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Motifs and k-cores
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#global-measures-one-number-per-brain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global measures (one number per brain)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spectral-methods-in-more-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spectral methods in more detail
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#random-graph-ensembles-and-statistical-inference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Random-graph ensembles and statistical inference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#directed-signed-temporal-higher-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directed, signed, temporal, higher-order
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#why-this-package-still-only-ships-strength" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why this package still only ships strength
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="graph-theory-beyond-this-tool">Graph theory beyond this tool<a class="headerlink" href="#graph-theory-beyond-this-tool" title="Permanent link">&para;</a></h1>
+<p>The Brain Connectivity Toolbox (Rubinov &amp; Sporns 2010)<sup id="fnref:rubinov2010"><a class="footnote-ref" href="#fn:rubinov2010">1</a></sup> catalogues dozens of measures. MATLAB/Python BCT, NetworkX, <code>bctpy</code>, <code>igraph</code>, and Brainstorm implement most of them. This package uses <strong>one</strong> (<code>strengths_und</code>) plus laterality. The rest of the catalogue is real graph theory. This page is the map, with enough formula and literature that a newcomer can see what each measure <em>is</em>, what question it answers, and why we do not ship it by default.</p>
+<p>Companion textbook: Fornito, Zalesky &amp; Bullmore (2016)<sup id="fnref:fornito2016"><a class="footnote-ref" href="#fn:fornito2016">2</a></sup>. Companion primer: <a href="../graphs/">Graph theory primer</a>.</p>
+<h2 id="local-measures-one-number-per-node">Local measures (one number per node)<a class="headerlink" href="#local-measures-one-number-per-node" title="Permanent link">&para;</a></h2>
+<h3 id="clustering-coefficient">Clustering coefficient<a class="headerlink" href="#clustering-coefficient" title="Permanent link">&para;</a></h3>
+<p><strong>Question:</strong> are my neighbours connected to each other?<br />
+<strong>Binary:</strong> <span class="arithmatex">\(C_i = 2t_i / k_i(k_i-1)\)</span>. <strong>Weighted:</strong> Onnela / Barrat / Zhang variants (name which).<br />
+<strong>BCT:</strong> <code>clustering_coef_bu</code>, <code>clustering_coef_wu</code>.<br />
+<strong>Pitfall:</strong> <span class="arithmatex">\(C\)</span> rises automatically with density. Compare at matched density to a rewired null (van Wijk 2010<sup id="fnref:vanwijk2010"><a class="footnote-ref" href="#fn:vanwijk2010">3</a></sup>).<br />
+<strong>When to use:</strong> a segregation hypothesis (“the epileptic hippocampus is less locally clustered”), <em>after</em> you have stated the null.</p>
+<h3 id="local-efficiency">Local efficiency<a class="headerlink" href="#local-efficiency" title="Permanent link">&para;</a></h3>
+<p><strong>Question:</strong> if node <span class="arithmatex">\(i\)</span> is removed, how well do its neighbours still communicate?<br />
+<strong>Formula:</strong> global efficiency of the neighbourhood subgraph (Latora &amp; Marchiori 2001<sup id="fnref:latora2001"><a class="footnote-ref" href="#fn:latora2001">4</a></sup>; Achard &amp; Bullmore 2007 on brain networks).<br />
+<strong>BCT:</strong> <code>efficiency_bin</code> / <code>efficiency_wei</code> with local flag.<br />
+<strong>Pitfall:</strong> needs a distance transform on weighted graphs; disconnected neighbourhoods drive the metric.</p>
+<h3 id="betweenness-centrality">Betweenness centrality<a class="headerlink" href="#betweenness-centrality" title="Permanent link">&para;</a></h3>
+<p><strong>Question:</strong> what fraction of shortest paths sit on <span class="arithmatex">\(i\)</span>?<br />
+<strong>Formula (Freeman 1977):</strong> <span class="arithmatex">\(b_i = \sum_{s\neq i \neq t} \sigma_{st}(i)/\sigma_{st}\)</span>. Weighted versions use a length matrix.<br />
+<strong>BCT:</strong> <code>betweenness_bin</code>, <code>betweenness_wei</code>. Brandes (2001) algorithm is the practical implementation.<br />
+<strong>Pitfall:</strong> a single bottleneck edge can dominate; very sensitive to false-positive long-range streamlines. Not a substitute for strength.</p>
+<h3 id="closeness-and-harmonic-closeness">Closeness and harmonic closeness<a class="headerlink" href="#closeness-and-harmonic-closeness" title="Permanent link">&para;</a></h3>
+<p><strong>Question:</strong> how near is <span class="arithmatex">\(i\)</span> to everyone else?<br />
+<strong>Closeness:</strong> <span class="arithmatex">\(1/\sum_j d_{ij}\)</span> — undefined or awkward if the graph is disconnected.<br />
+<strong>Harmonic:</strong> <span class="arithmatex">\(\sum_j 1/d_{ij}\)</span> — well-defined with <span class="arithmatex">\(d_{ij}=\infty\)</span>.<br />
+<strong>Pitfall:</strong> in a 400-node connectome almost everyone is 2–3 hops away; the dynamic range is tiny once density is high.</p>
+<h3 id="eigenvector-pagerank-katz">Eigenvector, PageRank, Katz<a class="headerlink" href="#eigenvector-pagerank-katz" title="Permanent link">&para;</a></h3>
+<p><strong>Question:</strong> is <span class="arithmatex">\(i\)</span> connected to other well-connected nodes?<br />
+<strong>Eigenvector:</strong> principal eigenvector of <span class="arithmatex">\(A\)</span> (Bonacich 1987).<br />
+<strong>PageRank:</strong> <span class="arithmatex">\((I-\alpha A D^{-1})^{-1}\)</span> damped walk (Brin &amp; Page 1998).<br />
+<strong>Katz:</strong> walks of all lengths with attenuation <span class="arithmatex">\(\alpha\)</span>.<br />
+<strong>BCT:</strong> <code>eigenvector_centrality_und</code>, <code>pagerank_centrality</code>.<br />
+<strong>Pitfall:</strong> on undirected connected graphs these are highly correlated with strength. They earn their keep on <em>directed</em> or very heterogeneous graphs.</p>
+<h3 id="matching-index">Matching index<a class="headerlink" href="#matching-index" title="Permanent link">&para;</a></h3>
+<p><strong>Question:</strong> how similar are the neighbour sets of <span class="arithmatex">\(i\)</span> and <span class="arithmatex">\(j\)</span>?<br />
+Used more as a <em>generative</em> term (Betzel et al. 2016<sup id="fnref:betzel2016"><a class="footnote-ref" href="#fn:betzel2016">5</a></sup>) than as a clinical biomarker.</p>
+<h3 id="within-module-degree-z-and-participation-p_i">Within-module degree <span class="arithmatex">\(z\)</span> and participation <span class="arithmatex">\(P_i\)</span><a class="headerlink" href="#within-module-degree-z-and-participation-p_i" title="Permanent link">&para;</a></h3>
+<p><strong>Question:</strong> provincial hub or connector hub?<br />
+Requires a community partition first (Guimerà &amp; Amaral 2005<sup id="fnref:guimera2005"><a class="footnote-ref" href="#fn:guimera2005">6</a></sup>; Sporns, Honey &amp; Kötter 2007).<br />
+<strong>BCT:</strong> <code>module_degree_zscore</code>, <code>participation_coef</code>.<br />
+<strong>Pitfall:</strong> garbage partition <span class="arithmatex">\(\Rightarrow\)</span> garbage cartography. Run consensus communities, not one Louvain seed.</p>
+<h2 id="mesoscale-structure-of-groups-of-nodes">Mesoscale (structure of groups of nodes)<a class="headerlink" href="#mesoscale-structure-of-groups-of-nodes" title="Permanent link">&para;</a></h2>
+<h3 id="community-detection">Community detection<a class="headerlink" href="#community-detection" title="Permanent link">&para;</a></h3>
+<p>Covered in the <a href="../graphs/#community-detection-and-modularity">primer</a>. Practical rule: report algorithm, resolution, consensus across runs, and <span class="arithmatex">\(Q\)</span> versus a degree-preserving null. Leiden (Traag 2019)<sup id="fnref:traag2019"><a class="footnote-ref" href="#fn:traag2019">7</a></sup> is the default upgrade from Louvain. Infomap (Rosvall &amp; Bergstrom 2008) optimises a different objective (random-walk compression) and can disagree with <span class="arithmatex">\(Q\)</span> — that disagreement is scientifically interesting, not a bug.</p>
+<h3 id="coreperiphery-and-rich-club">Core–periphery and rich club<a class="headerlink" href="#coreperiphery-and-rich-club" title="Permanent link">&para;</a></h3>
+<p>Borgatti &amp; Everett (2000) formalise a dense core with a sparse periphery. The <strong>rich club</strong> <span class="arithmatex">\(\phi(k)\)</span> (Colizza 2006; van den Heuvel &amp; Sporns 2011<sup id="fnref:vdh2011"><a class="footnote-ref" href="#fn:vdh2011">8</a></sup>) asks whether high-degree nodes are <em>unexpectedly</em> densely linked to each other. Hagmann et al. 2008’s “structural core” (posterior medial / parietal) is the empirical cousin.</p>
+<p><strong>Pitfall:</strong> <span class="arithmatex">\(\phi(k)\)</span> must be normalised by a configuration-model null, <span class="arithmatex">\(\phi_{\mathrm{norm}}(k)=\phi(k)/\phi_{\mathrm{rand}}(k)\)</span>. Raw <span class="arithmatex">\(\phi(k)\)</span> always rises at high <span class="arithmatex">\(k\)</span> in any heavy-tailed graph.</p>
+<h3 id="motifs-and-k-cores">Motifs and k-cores<a class="headerlink" href="#motifs-and-k-cores" title="Permanent link">&para;</a></h3>
+<p><strong>Motifs:</strong> over-represented small subgraphs vs a null (Milo 2002; Sporns &amp; Kötter 2004). Macroscale undirected connectomes have a limited motif zoo.</p>
+<p><strong>k-core:</strong> iteratively delete nodes with degree <span class="arithmatex">\(&lt;k\)</span>. The remaining shell is a robust core (Alvarez-Hamelin; Hagmann-style cores). Cheap to compute; still needs a null if you compare groups.</p>
+<h2 id="global-measures-one-number-per-brain">Global measures (one number per brain)<a class="headerlink" href="#global-measures-one-number-per-brain" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th>Idea</th>
+<th>Canonical ref</th>
+<th>Main confound</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Characteristic path length <span class="arithmatex">\(L\)</span></td>
+<td>Mean shortest path</td>
+<td>Watts–Strogatz 1998</td>
+<td>Density, disconnected nodes</td>
+</tr>
+<tr>
+<td>Global efficiency <span class="arithmatex">\(E_{\mathrm{glob}}\)</span></td>
+<td>Mean inverse path</td>
+<td>Latora &amp; Marchiori 2001</td>
+<td>Distance transform</td>
+</tr>
+<tr>
+<td>Small-world <span class="arithmatex">\(\sigma\)</span>, <span class="arithmatex">\(\omega\)</span></td>
+<td>High <span class="arithmatex">\(C\)</span>, short <span class="arithmatex">\(L\)</span> vs nulls</td>
+<td>Humphries 2008; Telesford 2011</td>
+<td>Almost always “significant” if null is ER</td>
+</tr>
+<tr>
+<td>Assortativity <span class="arithmatex">\(r\)</span></td>
+<td>Degree–degree correlation</td>
+<td>Newman 2002</td>
+<td>Density, parcellation</td>
+</tr>
+<tr>
+<td>Modularity <span class="arithmatex">\(Q\)</span></td>
+<td>Quality of a partition</td>
+<td>Newman 2006</td>
+<td>Resolution limit</td>
+</tr>
+<tr>
+<td>Synchronisability</td>
+<td>Laplacian spectrum</td>
+<td>Barahona &amp; Pecora</td>
+<td>Model of dynamics, not a measurement</td>
+</tr>
+<tr>
+<td>Algebraic connectivity <span class="arithmatex">\(\lambda_2\)</span></td>
+<td>Fiedler value of <span class="arithmatex">\(L\)</span></td>
+<td>Fiedler 1973; Chung 1997</td>
+<td>Component structure</td>
+</tr>
+<tr>
+<td>Graph energy / von Neumann entropy</td>
+<td>Spectral summaries</td>
+<td>—</td>
+<td>Hard to interpret clinically</td>
+</tr>
+<tr>
+<td>MST diameter, leaf fraction</td>
+<td>Stats on a tree backbone</td>
+<td>Stam 2014<sup id="fnref:stam2014"><a class="footnote-ref" href="#fn:stam2014">9</a></sup></td>
+<td>Loses cycles on purpose</td>
+</tr>
+</tbody>
+</table>
+<p>Global metrics are where <strong>forking paths</strong> explode: threshold × weight × atlas × null × metric. Button et al. (2013) on power and Ioannidis on false-positive science apply brutally here. A pre-registered strength+AI contrast is a more defensible paper than an uncorrected 50-metric BCT dump.</p>
+<h2 id="spectral-methods-in-more-detail">Spectral methods in more detail<a class="headerlink" href="#spectral-methods-in-more-detail" title="Permanent link">&para;</a></h2>
+<p>The Laplacian <span class="arithmatex">\(L=D-W\)</span> (or the normalised version) is the adjacency matrix’s more structural cousin:</p>
+<ul>
+<li><strong>Connected components</strong> = dim ker <span class="arithmatex">\(L\)</span>.</li>
+<li><strong>Cheeger / Fiedler:</strong> a small <span class="arithmatex">\(\lambda_2\)</span> means a sparse cut — the graph almost falls into two pieces. Spectral clustering uses the Fiedler vector as a 1-D embedding and thresholds it.</li>
+<li><strong>Graph signal processing:</strong> treat a cortical map (thickness, BOLD amplitude, an AI vector) as a <em>signal</em> on the nodes; the Laplacian eigenbasis is a Fourier basis on the connectome (Shuman 2013; Ortega 2018). Atasoy et al. (2016)<sup id="fnref:atasoy2016"><a class="footnote-ref" href="#fn:atasoy2016">10</a></sup> called the structural eigenmaps <strong>connectome harmonics</strong> and related them to resting-state patterns.</li>
+<li><strong>Heat kernels / diffusion embedding:</strong> <span class="arithmatex">\(e^{-tL}\)</span> is the graph analogue of a Gaussian blur; used in manifold learning on connectomes (Margulies 2016 “principal gradient” is a related embedding on functional connectivity).</li>
+</ul>
+<p>Strength is <span class="arithmatex">\(\mathrm{diag}(D)\)</span>. If you only compute strength, you have not done spectral graph theory; you have done the degree sequence.</p>
+<h2 id="random-graph-ensembles-and-statistical-inference">Random-graph ensembles and statistical inference<a class="headerlink" href="#random-graph-ensembles-and-statistical-inference" title="Permanent link">&para;</a></h2>
+<p>Repeating the primer with the <em>inference</em> hat on:</p>
+<ul>
+<li><strong>Erdős–Rényi</strong> — too simple; destroys hubs.</li>
+<li><strong>Configuration model</strong> — preserves degrees; the default null for <span class="arithmatex">\(Q\)</span>, motifs, rich-club.</li>
+<li><strong>Stochastic block model</strong> — infers communities as a generative model (Peixoto’s <code>graph-tool</code>); comes with model selection (minimum description length) instead of a single <span class="arithmatex">\(Q\)</span>.</li>
+<li><strong>Exponential random graph models (ERGM)</strong> — specify <span class="arithmatex">\(P(G)\propto \exp(\theta\cdot \text{features})\)</span>. Poorly identified on <span class="arithmatex">\(n\sim 400\)</span> MRI graphs; use with scepticism.</li>
+<li><strong>Geometric / hyperbolic / latent-space</strong> — nodes have coordinates; edges prefer short distances (Betzel 2016; Roberts, Perry, Lord et al.). The brain is spatially embedded; a null that ignores Euclidean distance will call every short-range triangle “clustering.”</li>
+<li><strong>Minimum spanning tree</strong> — one connected acyclic backbone; density is no longer a free parameter (Stam 2014). You lose all cycles, so clustering is identically zero; you study <em>hierarchy of the tree</em> instead.</li>
+</ul>
+<p>Without some ensemble, “small-world” and “modular” are adjectives, not results (Fornito, Zalesky &amp; Breakspear 2013<sup id="fnref:fornito2013"><a class="footnote-ref" href="#fn:fornito2013">11</a></sup>).</p>
+<h2 id="directed-signed-temporal-higher-order">Directed, signed, temporal, higher-order<a class="headerlink" href="#directed-signed-temporal-higher-order" title="Permanent link">&para;</a></h2>
+<p>See the primer’s last technical section. Practical pointers:</p>
+<ul>
+<li><strong>Directed structural MRI</strong> is usually a mistake: tractography polarity is not axon polarity. Directed <em>functional</em> graphs are a different literature (DCM, Granger — Friston 2011).</li>
+<li><strong>Signed</strong> modularity must not treat a negative edge as “missing.” Rubinov &amp; Sporns 2011 give the convention BCT uses.</li>
+<li><strong>Dynamic FC</strong> reliability is low at short windows (Noble, Scheinost &amp; Constable; Laumann et al.). Do not compute 50 BCT metrics per window.</li>
+<li><strong>Higher-order / simplicial</strong> methods (Battiston 2020, 2021; Giusti, Ghrist, Bassett on clique topology) are active research. They are not a drop-in replacement for <code>strengths_und</code>.</li>
+</ul>
+<h2 id="why-this-package-still-only-ships-strength">Why this package still only ships strength<a class="headerlink" href="#why-this-package-still-only-ships-strength" title="Permanent link">&para;</a></h2>
+<p>Piper et al. 2026 asked whether <strong>thalamic nuclei differ in total structural coupling</strong> with cortex, by side and group<sup id="fnref:piper2026"><a class="footnote-ref" href="#fn:piper2026">12</a></sup>. That is a <strong>weighted-degree</strong> hypothesis. Efficiency, modularity, or rich-club would answer <em>different</em> questions and would require density-matched nulls the paper did not claim.</p>
+<p>If you extend <code>nodestrength</code> with other BCT measures:</p>
+<ol>
+<li>Document the edge definition (Count vs FA vs SIFT2).</li>
+<li>Document the null.</li>
+<li>Pre-register the metric list.</li>
+<li>Do not Bonferroni 50 metrics on 288 subjects into a story.</li>
+</ol>
+<p>The “connectomic garden of forking paths” is how the literature filled with unreplicable small-world papers. Strength plus a named laterality contrast is a narrower, cleaner claim.</p>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:rubinov2010">
+<p>Rubinov M, Sporns O. <em>NeuroImage</em>. 2010;52:1059–1069.&#160;<a class="footnote-backref" href="#fnref:rubinov2010" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:fornito2016">
+<p>Fornito A, Zalesky A, Bullmore ET. <em>Fundamentals of Brain Network Analysis</em>. 2016.&#160;<a class="footnote-backref" href="#fnref:fornito2016" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:vanwijk2010">
+<p>van Wijk BCM, Stam CJ, Daffertshofer A. <em>PLoS One</em>. 2010;5:e13701.&#160;<a class="footnote-backref" href="#fnref:vanwijk2010" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:latora2001">
+<p>Latora V, Marchiori M. <em>Phys Rev Lett</em>. 2001;87:198701.&#160;<a class="footnote-backref" href="#fnref:latora2001" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:betzel2016">
+<p>Betzel RF et al. Generative models of the human connectome. <em>NeuroImage</em>. 2016;124:1054–1064.&#160;<a class="footnote-backref" href="#fnref:betzel2016" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+<li id="fn:guimera2005">
+<p>Guimerà R, Nunes Amaral LA. <em>Nature</em>. 2005;433:895–900.&#160;<a class="footnote-backref" href="#fnref:guimera2005" title="Jump back to footnote 6 in the text">&#8617;</a></p>
+</li>
+<li id="fn:traag2019">
+<p>Traag VA, Waltman L, van Eck NJ. <em>Sci Rep</em>. 2019;9:5233.&#160;<a class="footnote-backref" href="#fnref:traag2019" title="Jump back to footnote 7 in the text">&#8617;</a></p>
+</li>
+<li id="fn:vdh2011">
+<p>van den Heuvel MP, Sporns O. <em>J Neurosci</em>. 2011;31:15775–15786.&#160;<a class="footnote-backref" href="#fnref:vdh2011" title="Jump back to footnote 8 in the text">&#8617;</a></p>
+</li>
+<li id="fn:stam2014">
+<p>Stam CJ et al. <em>Int J Psychophysiol</em>. 2014;92:129–138.&#160;<a class="footnote-backref" href="#fnref:stam2014" title="Jump back to footnote 9 in the text">&#8617;</a></p>
+</li>
+<li id="fn:atasoy2016">
+<p>Atasoy S et al. <em>Nat Commun</em>. 2016;7:10340.&#160;<a class="footnote-backref" href="#fnref:atasoy2016" title="Jump back to footnote 10 in the text">&#8617;</a></p>
+</li>
+<li id="fn:fornito2013">
+<p>Fornito A, Zalesky A, Breakspear M. <em>NeuroImage</em>. 2013;80:426–444.&#160;<a class="footnote-backref" href="#fnref:fornito2013" title="Jump back to footnote 11 in the text">&#8617;</a></p>
+</li>
+<li id="fn:piper2026">
+<p>Piper RJ et al. <em>Epilepsia</em>. 2026;67:1901–1915.&#160;<a class="footnote-backref" href="#fnref:piper2026" title="Jump back to footnote 12 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../other-methods/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Other connectomic methods">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Other connectomic methods
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../statistics/" class="md-footer__link md-footer__link--next" aria-label="Next: Statistics we actually run">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Statistics we actually run
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      MIT license · nodestrength · Philbert Ndagijimana · phindagijimana@gmail.com
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/phindagijimana/dwi-AI" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://hub.docker.com/r/phindagijimana321/nodestrength" target="_blank" rel="noopener" title="hub.docker.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M349.9 236.3h-66.1v-59.4h66.1zm0-204.3h-66.1v60.7h66.1zm78.2 144.8H362v59.4h66.1zm-156.3-72.1h-66.1v60.1h66.1zm78.1 0h-66.1v60.1h66.1zm276.8 100c-14.4-9.7-47.6-13.2-73.1-8.4-3.3-24-16.7-44.9-41.1-63.7l-14-9.3-9.3 14c-18.4 27.8-23.4 73.6-3.7 103.8-8.7 4.7-25.8 11.1-48.4 10.7H2.4c-8.7 50.8 5.8 116.8 44 162.1 37.1 43.9 92.7 66.2 165.4 66.2 157.4 0 273.9-72.5 328.4-204.2 21.4.4 67.6.1 91.3-45.2 1.5-2.5 6.6-13.2 8.5-17.1zm-511.1-27.9h-66v59.4h66.1v-59.4zm78.1 0h-66.1v59.4h66.1zm78.1 0h-66.1v59.4h66.1zm-78.1-72.1h-66.1v60.1h66.1z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:phindagijimana@gmail.com" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4l208 156a48 48 0 0 0 57.6 0l208-156c12.1-9.1 19.2-23.3 19.2-38.4 0-26.5-21.5-48-48-48zM0 196v188c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64V196L313.6 344.8c-34.1 25.6-81.1 25.6-115.2 0z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

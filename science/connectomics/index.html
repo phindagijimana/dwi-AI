@@ -1,0 +1,2015 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Node strength, asymmetry, and connectomics analysis for diffusion MRI">
+      
+      
+      
+        <link rel="canonical" href="https://phindagijimana.github.io/dwi-AI/science/connectomics/">
+      
+      
+        <link rel="prev" href="../graphs/">
+      
+      
+        <link rel="next" href="../strength/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Connectomics - nodestrength</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#connectomics" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="nodestrength" class="md-header__button md-logo" aria-label="nodestrength" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            nodestrength
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Connectomics
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="teal"  aria-label="Light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/phindagijimana/dwi-AI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    phindagijimana/dwi-AI
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../installation/" class="md-tabs__link">
+          
+  
+  
+  Installation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../preparing/" class="md-tabs__link">
+          
+  
+  
+  Usage
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../networks/" class="md-tabs__link">
+          
+  
+  
+  Science
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../about/" class="md-tabs__link">
+          
+  
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="nodestrength" class="md-nav__button md-logo" aria-label="nodestrength" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    nodestrength
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/phindagijimana/dwi-AI" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    phindagijimana/dwi-AI
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Installation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../container/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Containers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../preparing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Preparing data
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Running nodestrength
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command-line reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../outputs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Outputs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Pipeline details
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Science
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Science
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../networks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Why graphs for the brain
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../graphs/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph theory primer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connectomics
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Connectomics
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scales-of-connectomics-do-not-mix-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scales of connectomics (do not mix them)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-structural-connectome-is-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a structural connectome is made
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How a structural connectome is made">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deterministic-vs-probabilistic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deterministic vs probabilistic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-tractography-cannot-promise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What tractography cannot promise
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edge-weights-are-different-graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge weights are different graphs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parcellations-used-with-this-software" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcellations used with this software
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parcellations used with this software">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#desikankilliany-and-fs_default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desikan–Killiany and fs_default
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lausanne-2008-cammoun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lausanne 2008 / Cammoun
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thomas-thalamic-nuclei" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        THOMAS thalamic nuclei
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-atlases-you-will-meet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other atlases you will meet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functional-connectomics-not-computed-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functional connectomics (not computed here)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#epilepsy-and-the-connectome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Epilepsy and the connectome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-checklist-before-you-score-w" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical checklist before you score \(W\)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../strength/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Node strength
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../asymmetry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Asymmetry indices
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../other-methods/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other connectomic methods
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../beyond/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Graph theory beyond this tool
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../statistics/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Statistics we actually run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../literature/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Literature guide
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    About
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About this project
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../citing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Citing and contact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing and GitHub
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../references/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    References
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scales-of-connectomics-do-not-mix-them" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scales of connectomics (do not mix them)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-a-structural-connectome-is-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a structural connectome is made
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How a structural connectome is made">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deterministic-vs-probabilistic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deterministic vs probabilistic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-tractography-cannot-promise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What tractography cannot promise
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#edge-weights-are-different-graphs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge weights are different graphs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parcellations-used-with-this-software" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcellations used with this software
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parcellations used with this software">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#desikankilliany-and-fs_default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Desikan–Killiany and fs_default
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lausanne-2008-cammoun" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lausanne 2008 / Cammoun
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#thomas-thalamic-nuclei" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        THOMAS thalamic nuclei
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-atlases-you-will-meet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other atlases you will meet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functional-connectomics-not-computed-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functional connectomics (not computed here)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#epilepsy-and-the-connectome" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Epilepsy and the connectome
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#practical-checklist-before-you-score-w" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Practical checklist before you score \(W\)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="connectomics">Connectomics<a class="headerlink" href="#connectomics" title="Permanent link">&para;</a></h1>
+<p><strong>Connectomics</strong> is the project of mapping neural connections at a chosen scale (Sporns, Tononi &amp; Kötter 2005<sup id="fnref:sporns2005"><a class="footnote-ref" href="#fn:sporns2005">1</a></sup>; Lichtman &amp; Sanes 2008 at microscale; Hagmann 2008 and the Human Connectome Project at macroscale<sup id="fnref:hagmann2008"><a class="footnote-ref" href="#fn:hagmann2008">2</a></sup><sup id="fnref:vanessen2013"><a class="footnote-ref" href="#fn:vanessen2013">3</a></sup>).</p>
+<p>This tool lives at <strong>macroscale, in vivo, diffusion MRI</strong>. The matrix <span class="arithmatex">\(W\)</span> that <code>nodestrength</code> consumes is not “the connectome” in the synaptic sense. It is a reconstruction. This page is how that reconstruction is made, why two labs’ <span class="arithmatex">\(W\)</span> disagree, and which literatures sit next to it.</p>
+<h2 id="scales-of-connectomics-do-not-mix-them">Scales of connectomics (do not mix them)<a class="headerlink" href="#scales-of-connectomics-do-not-mix-them" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Scale</th>
+<th>Object</th>
+<th>Methods</th>
+<th>Landmark</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Micro</td>
+<td>Synapses, neurites</td>
+<td>EM (White 1986 <em>C. elegans</em>; FlyEM; MICrONS)</td>
+<td>Lichtman &amp; Sanes 2008</td>
+</tr>
+<tr>
+<td>Meso</td>
+<td>Projection neurons, tracers</td>
+<td>Viral tracers, CLARITY, CoCoMac, Allen CCFv3</td>
+<td>Markov et al. macaque; Oh et al. mouse</td>
+</tr>
+<tr>
+<td>Macro</td>
+<td>Grey-matter parcels, white-matter pathways</td>
+<td>dMRI tractography, polarised light, dissection</td>
+<td>Hagmann 2008; HCP</td>
+</tr>
+</tbody>
+</table>
+<p>Jones, Knösche &amp; Turner (2013)<sup id="fnref:jones2013"><a class="footnote-ref" href="#fn:jones2013">4</a></sup> is the paper to read before treating a streamline count as an axon count.</p>
+<h2 id="how-a-structural-connectome-is-made">How a structural connectome is made<a class="headerlink" href="#how-a-structural-connectome-is-made" title="Permanent link">&para;</a></h2>
+<pre class="mermaid"><code>flowchart TD
+  RAW[Raw dMRI] --&gt; PRE[denoise, unring, eddy, TOPUP]
+  PRE --&gt; FOD[FOD / MSMT-CSD]
+  T1[T1w] --&gt; PARC[Parcellation]
+  T1 --&gt; ACT[5TT ACT]
+  FOD --&gt; TCK[tckgen]
+  ACT --&gt; TCK
+  TCK --&gt; FILT[SIFT2 / COMMIT]
+  PARC --&gt; C[tck2connectome]
+  FILT --&gt; C
+  C --&gt; W["W, the connectome"]</code></pre>
+<ol>
+<li><strong>Preprocess</strong> the diffusion data (motion, eddy, susceptibility). <a href="https://qsiprep.readthedocs.io/">QSIPrep</a> (Cieslak et al. 2021<sup id="fnref:cieslak2021"><a class="footnote-ref" href="#fn:cieslak2021">5</a></sup>) is the current standard BIDS implementation.</li>
+<li><strong>Estimate fibre orientations.</strong> DTI (Basser, Mattiello &amp; LeBihan 1994) gives one ellipsoid per voxel — insufficient at crossings. HARDI / CSD (Tournier, Calamante &amp; Connelly 2007) and <strong>MSMT-CSD</strong> (Jeurissen et al. 2014<sup id="fnref:jeurissen2014"><a class="footnote-ref" href="#fn:jeurissen2014">6</a></sup>) give fibre orientation distributions (FODs) that can support multiple peaks.</li>
+<li><strong>Grow streamlines.</strong> Deterministic: follow the peak (FACT, SD_STREAM). Probabilistic: sample the FOD (iFOD2 in MRtrix3). Anatomically constrained tractography (ACT; Smith et al. 2012<sup id="fnref:smith2012"><a class="footnote-ref" href="#fn:smith2012">7</a></sup>) uses a 5-tissue-type image so streamlines terminate in grey matter rather than running into CSF.</li>
+<li><strong>Filter.</strong> Raw tractograms over-represent easy paths. <strong>SIFT</strong> (Smith 2013<sup id="fnref:smith2013"><a class="footnote-ref" href="#fn:smith2013">8</a></sup>) removes streamlines; <strong>SIFT2</strong> (Smith 2015<sup id="fnref:smith2015"><a class="footnote-ref" href="#fn:smith2015">9</a></sup>) keeps them all and assigns a weight so the FOD is explained. <strong>COMMIT</strong> (Daducci 2015<sup id="fnref:daducci2015"><a class="footnote-ref" href="#fn:daducci2015">10</a></sup>) and LiFE (Pestilli 2014) are convex / biological alternatives.</li>
+<li><strong>Parcellate and count.</strong> <code>tck2connectome</code> sums (weighted) streamlines between pairs of grey-matter labels.</li>
+</ol>
+<p>MRtrix3 (Tournier et al. 2019<sup id="fnref:tournier2019"><a class="footnote-ref" href="#fn:tournier2019">11</a></sup>) is the usual implementation of 2–5. QSIRecon wraps those recipes in BIDS.</p>
+<h3 id="deterministic-vs-probabilistic">Deterministic vs probabilistic<a class="headerlink" href="#deterministic-vs-probabilistic" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Deterministic</th>
+<th>Probabilistic (iFOD2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Algorithm</td>
+<td>Follow the FOD peak</td>
+<td>Sample the FOD</td>
+</tr>
+<tr>
+<td>Typical <span class="arithmatex">\(W\)</span></td>
+<td>Sparser; weaker long-range</td>
+<td>Denser; more long-range</td>
+</tr>
+<tr>
+<td>False negatives</td>
+<td>Kissing / crossing missed</td>
+<td>Fewer misses</td>
+</tr>
+<tr>
+<td>False positives</td>
+<td>Fewer hallucinations</td>
+<td>Long-range invented connections</td>
+</tr>
+<tr>
+<td>Strength / AI</td>
+<td>Different numbers on the same subject</td>
+<td>Different numbers on the same subject</td>
+</tr>
+</tbody>
+</table>
+<p>They are <strong>different experiments</strong>. A bitwise-identical Count matrix labelled both “det” and “prob” is a <strong>packaging error</strong>, not a replication. True deterministic Count on the same subjects is sparser and will move ROC AUC. IDEAS Figshare dumps have illustrated both the error (old “det” copied from prob) and the real difference (later true det zip).</p>
+<h3 id="what-tractography-cannot-promise">What tractography cannot promise<a class="headerlink" href="#what-tractography-cannot-promise" title="Permanent link">&para;</a></h3>
+<p>Read these before writing “we mapped the connectome”:</p>
+<ul>
+<li>Jones, Knösche &amp; Turner 2013 — fibre count and other fallacies<sup id="fnref2:jones2013"><a class="footnote-ref" href="#fn:jones2013">4</a></sup></li>
+<li>Thomas et al. 2014, <em>PNAS</em> — anatomical accuracy is inherently limited<sup id="fnref:thomas2014"><a class="footnote-ref" href="#fn:thomas2014">12</a></sup></li>
+<li>Maier-Hein et al. 2017 — international tractography challenge; even experts disagree<sup id="fnref:maierhein2017"><a class="footnote-ref" href="#fn:maierhein2017">13</a></sup></li>
+<li>Schilling et al. 2019 — modern methods still limited<sup id="fnref:schilling2019"><a class="footnote-ref" href="#fn:schilling2019">14</a></sup></li>
+<li>Yeh et al. 2021 — challenges and opportunities review<sup id="fnref:yeh2021"><a class="footnote-ref" href="#fn:yeh2021">15</a></sup></li>
+<li>Reveley / Jbabdi / Calabrese — gyral bias, bottleneck issues, ground-truth animal comparisons</li>
+</ul>
+<p>A zero in <span class="arithmatex">\(W\)</span> means “this reconstruction did not draw a connection,” not “biology has no axons here.” A large <span class="arithmatex">\(w_{ij}\)</span> means “many weighted streamlines ran between these parcels,” not “this is a strong synaptic projection.”</p>
+<h2 id="edge-weights-are-different-graphs">Edge weights are different graphs<a class="headerlink" href="#edge-weights-are-different-graphs" title="Permanent link">&para;</a></h2>
+<p>On the <strong>same</strong> tractogram you can write several matrices. They are not interchangeable biomarkers.</p>
+<table>
+<thead>
+<tr>
+<th>Weight</th>
+<th>How it is made</th>
+<th>What <span class="arithmatex">\(s_i=\sum_j w_{ij}\)</span> then means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Count</td>
+<td>Number of streamlines</td>
+<td>Raw reconstructed wiring mass; scales with <code>tckgen</code> count</td>
+</tr>
+<tr>
+<td>SIFT2-weighted count</td>
+<td>Streamline weights from SIFT2</td>
+<td>Preferred quantitative structural edge (Smith 2015)</td>
+</tr>
+<tr>
+<td>CountScaled</td>
+<td>Count ÷ (volume and/or length)</td>
+<td>Attempts to correct parcel size; <strong>name the divisor</strong></td>
+</tr>
+<tr>
+<td>Mean FA</td>
+<td>Average FA of voxels / streamlines on the path</td>
+<td>Mixes <em>whether</em> a path exists with <em>microstructure</em> of that path</td>
+</tr>
+<tr>
+<td>MD / RD / AD</td>
+<td>Same with other tensors</td>
+<td>Diffusivity load, not wiring mass</td>
+</tr>
+<tr>
+<td>Mean length</td>
+<td>Average streamline length</td>
+<td>Total millimetres of track, not connection weight</td>
+</tr>
+</tbody>
+</table>
+<p>Gong et al. (2009)<sup id="fnref:gong2009"><a class="footnote-ref" href="#fn:gong2009">16</a></sup> and Hagmann (2008) discuss weighted vs binary cortical networks. <strong>Never</strong> concatenate Count AI and MeanFA AI in one ROC without labelling the edge. In IDEAS-style trees you will see <code>Count</code>, <code>CountScaled</code>, <code>MeanFA</code>, <code>MD</code>, <code>Length</code> as separate experiments.</p>
+<h2 id="parcellations-used-with-this-software">Parcellations used with this software<a class="headerlink" href="#parcellations-used-with-this-software" title="Permanent link">&para;</a></h2>
+<h3 id="desikankilliany-and-fs_default">Desikan–Killiany and <code>fs_default</code><a class="headerlink" href="#desikankilliany-and-fs_default" title="Permanent link">&para;</a></h3>
+<p>Desikan et al. (2006)<sup id="fnref:desikan2006"><a class="footnote-ref" href="#fn:desikan2006">17</a></sup>: 34 cortical gyri per hemisphere from FreeSurfer <code>aparc</code>, plus subcortical <code>aseg</code> structures. MRtrix3 <code>fs_default.txt</code> is an 84-row lookup used by <code>labelconvert</code>. <code>dkt-ai-cohort</code> pairs homologous L/R labels on that grid. <strong>Thalamus is one node per side</strong> (<code>Thalamus-Proper</code>). Per-nucleus thalamus requires THOMAS (or similar) on top — that is the Piper atlas, not DK.</p>
+<h3 id="lausanne-2008-cammoun">Lausanne 2008 / Cammoun<a class="headerlink" href="#lausanne-2008-cammoun" title="Permanent link">&para;</a></h3>
+<p>Hagmann 2008 and Cammoun et al. 2012<sup id="fnref:cammoun2012"><a class="footnote-ref" href="#fn:cammoun2012">18</a></sup>: recursive subdivision of DK cortex. Published scales are approximately 36, 60, 125, 250 <em>cortical</em> parcels per hemisphere-style naming; after dropping brainstem and using both hemispheres plus subcortex, connectome sizes in easy_lausanne GraphML (this project) are <strong>82 / 128 / 233 / 462</strong> nodes. <strong>Hippocampus is not split.</strong> Row order is GraphML order: drop <code>Brain-Stem</code>, then left subcortical, right subcortical, left cortex, right cortex — <strong>not</strong> <code>FreeSurferColorLUT.txt</code> order. Matching node counts is not matching LUT.</p>
+<h3 id="thomas-thalamic-nuclei">THOMAS thalamic nuclei<a class="headerlink" href="#thomas-thalamic-nuclei" title="Permanent link">&para;</a></h3>
+<p>Su et al., Thalamus Optimized Multi Atlas Segmentation<sup id="fnref:su2019"><a class="footnote-ref" href="#fn:su2019">19</a></sup>. Piper et al. 2026 merge THOMAS nuclei with cortical Lausanne/DK-style labels to ask <em>which nucleus</em> is under-connected<sup id="fnref:piper2026"><a class="footnote-ref" href="#fn:piper2026">20</a></sup>. Whole-thalamus DK AI cannot answer that.</p>
+<h3 id="other-atlases-you-will-meet">Other atlases you will meet<a class="headerlink" href="#other-atlases-you-will-meet" title="Permanent link">&para;</a></h3>
+<p>AAL (Tzourio-Mazoyer 2002), Harvard-Oxford, Schaefer 2018<sup id="fnref:schaefer2018"><a class="footnote-ref" href="#fn:schaefer2018">21</a></sup>, Glasser MMP 2016<sup id="fnref:glasser2016"><a class="footnote-ref" href="#fn:glasser2016">22</a></sup>, Brainnetome (Fan 2016), AICHA, Yeo 7/17 (functional, not structural). Zalesky 2010: node choice changes every subsequent metric.</p>
+<h2 id="functional-connectomics-not-computed-here">Functional connectomics (not computed here)<a class="headerlink" href="#functional-connectomics-not-computed-here" title="Permanent link">&para;</a></h2>
+<p>Resting-state edges are typically Pearson or partial correlations of ROI time series (Biswal 1995; Smith et al. 2011<sup id="fnref:smith2011"><a class="footnote-ref" href="#fn:smith2011">23</a></sup>). Confounds: motion (Power et al. 2012<sup id="fnref:power2011"><a class="footnote-ref" href="#fn:power2011">24</a></sup>), global signal, atlas, pipeline (Ciric / Parkes “denoising” papers). Graph metrics can be computed on that matrix; thresholding and density are a literature of their own (van Wijk 2010<sup id="fnref:vanwijk2010"><a class="footnote-ref" href="#fn:vanwijk2010">25</a></sup>). <strong>NBS</strong> (Zalesky, Fornito &amp; Bullmore 2010<sup id="fnref:zalesky2010nbs"><a class="footnote-ref" href="#fn:zalesky2010nbs">26</a></sup>) is the standard edgewise inference tool — see <a href="../other-methods/">Other methods</a>.</p>
+<p>Do not run <code>strengths_und</code> on a Fisher-z matrix and interpret it as streamline strength.</p>
+<h2 id="epilepsy-and-the-connectome">Epilepsy and the connectome<a class="headerlink" href="#epilepsy-and-the-connectome" title="Permanent link">&para;</a></h2>
+<p>Focal epilepsy is a <strong>network</strong> disease as much as a focal lesion (Spencer 2002; Richardson 2012; Bernhardt, Bonilha &amp; Gross 2015<sup id="fnref:bernhardt2015"><a class="footnote-ref" href="#fn:bernhardt2015">27</a></sup>; Tavakol et al. 2019). Relevant strands:</p>
+<ul>
+<li><strong>Hippocampal sclerosis:</strong> volume loss and T2; laterality of volume is the classical MRI biomarker. Connectivity AI asks whether remaining tissue is also under-wired (<a href="../asymmetry/">Asymmetry</a>).</li>
+<li><strong>Thalamocortical loops:</strong> absence and focal seizures both implicate thalamus; Piper et al. 2026 measure <strong>thalamocortical structural strength</strong> in children with focal epilepsy, with SOZ and mixed-design GLM<sup id="fnref2:piper2026"><a class="footnote-ref" href="#fn:piper2026">20</a></sup>.</li>
+<li><strong>Graph metrics in epilepsy:</strong> reviews report altered clustering, efficiency, and hubs — with all the density caveats of the primer. This software does not add those metrics by default.</li>
+<li><strong>IDEAS I/II:</strong> Lausanne-scale structural connectomes used in this repository to apply strength+AI to hippocampus (Count/FA/Length, det vs prob, scales 36–250).</li>
+</ul>
+<h2 id="practical-checklist-before-you-score-w">Practical checklist before you score <span class="arithmatex">\(W\)</span><a class="headerlink" href="#practical-checklist-before-you-score-w" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Named reconstruction (QSIPrep version, MRtrix3 version, iFOD2 vs FACT, SIFT2 on/off, streamline count).</li>
+<li>Named atlas, scale, LUT provenance.</li>
+<li>One weight type per contrast.</li>
+<li>Det and prob never pooled unlabeled.</li>
+<li>Diagonal zeroed, matrix square, symmetrised if undirected.</li>
+<li>Then — and only then — <a href="../strength/">node strength</a>.</li>
+</ol>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:sporns2005">
+<p>Sporns O, Tononi G, Kötter R. <em>PLoS Comput Biol</em>. 2005;1:e42.&#160;<a class="footnote-backref" href="#fnref:sporns2005" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:hagmann2008">
+<p>Hagmann P et al. <em>PLoS Biol</em>. 2008;6:e159.&#160;<a class="footnote-backref" href="#fnref:hagmann2008" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+<li id="fn:vanessen2013">
+<p>Van Essen DC et al. <em>NeuroImage</em>. 2013;80:62–79.&#160;<a class="footnote-backref" href="#fnref:vanessen2013" title="Jump back to footnote 3 in the text">&#8617;</a></p>
+</li>
+<li id="fn:jones2013">
+<p>Jones DK, Knösche TR, Turner R. White matter integrity, fiber count, and other fallacies. <em>NeuroImage</em>. 2013;73:239–254.&#160;<a class="footnote-backref" href="#fnref:jones2013" title="Jump back to footnote 4 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:jones2013" title="Jump back to footnote 4 in the text">&#8617;</a></p>
+</li>
+<li id="fn:cieslak2021">
+<p>Cieslak M et al. <em>Nat Methods</em>. 2021;18:775–778.&#160;<a class="footnote-backref" href="#fnref:cieslak2021" title="Jump back to footnote 5 in the text">&#8617;</a></p>
+</li>
+<li id="fn:jeurissen2014">
+<p>Jeurissen B et al. <em>NeuroImage</em>. 2014;103:411–426.&#160;<a class="footnote-backref" href="#fnref:jeurissen2014" title="Jump back to footnote 6 in the text">&#8617;</a></p>
+</li>
+<li id="fn:smith2012">
+<p>Smith RE et al. Anatomically-constrained tractography. <em>NeuroImage</em>. 2012;62:1924–1938.&#160;<a class="footnote-backref" href="#fnref:smith2012" title="Jump back to footnote 7 in the text">&#8617;</a></p>
+</li>
+<li id="fn:smith2013">
+<p>Smith RE et al. SIFT. <em>NeuroImage</em>. 2013;67:298–312.&#160;<a class="footnote-backref" href="#fnref:smith2013" title="Jump back to footnote 8 in the text">&#8617;</a></p>
+</li>
+<li id="fn:smith2015">
+<p>Smith RE et al. SIFT2. <em>NeuroImage</em>. 2015;119:338–351.&#160;<a class="footnote-backref" href="#fnref:smith2015" title="Jump back to footnote 9 in the text">&#8617;</a></p>
+</li>
+<li id="fn:daducci2015">
+<p>Daducci A et al. COMMIT. <em>IEEE TMI</em>. 2015;34:246–261.&#160;<a class="footnote-backref" href="#fnref:daducci2015" title="Jump back to footnote 10 in the text">&#8617;</a></p>
+</li>
+<li id="fn:tournier2019">
+<p>Tournier J-D et al. <em>NeuroImage</em>. 2019;202:116137.&#160;<a class="footnote-backref" href="#fnref:tournier2019" title="Jump back to footnote 11 in the text">&#8617;</a></p>
+</li>
+<li id="fn:thomas2014">
+<p>Thomas C et al. <em>PNAS</em>. 2014;111:16574–16579.&#160;<a class="footnote-backref" href="#fnref:thomas2014" title="Jump back to footnote 12 in the text">&#8617;</a></p>
+</li>
+<li id="fn:maierhein2017">
+<p>Maier-Hein KH et al. <em>Nat Commun</em>. 2017;8:1349.&#160;<a class="footnote-backref" href="#fnref:maierhein2017" title="Jump back to footnote 13 in the text">&#8617;</a></p>
+</li>
+<li id="fn:schilling2019">
+<p>Schilling KG et al. <em>NeuroImage</em>. 2019;185:1–11.&#160;<a class="footnote-backref" href="#fnref:schilling2019" title="Jump back to footnote 14 in the text">&#8617;</a></p>
+</li>
+<li id="fn:yeh2021">
+<p>Yeh C-H et al. <em>J Magn Reson Imaging</em>. 2021;53:1666–1682.&#160;<a class="footnote-backref" href="#fnref:yeh2021" title="Jump back to footnote 15 in the text">&#8617;</a></p>
+</li>
+<li id="fn:gong2009">
+<p>Gong G et al. <em>Cereb Cortex</em>. 2009;19:524–536.&#160;<a class="footnote-backref" href="#fnref:gong2009" title="Jump back to footnote 16 in the text">&#8617;</a></p>
+</li>
+<li id="fn:desikan2006">
+<p>Desikan RS et al. <em>NeuroImage</em>. 2006;31:968–980.&#160;<a class="footnote-backref" href="#fnref:desikan2006" title="Jump back to footnote 17 in the text">&#8617;</a></p>
+</li>
+<li id="fn:cammoun2012">
+<p>Cammoun L et al. <em>J Neurosci Methods</em>. 2012;203:386–397.&#160;<a class="footnote-backref" href="#fnref:cammoun2012" title="Jump back to footnote 18 in the text">&#8617;</a></p>
+</li>
+<li id="fn:su2019">
+<p>Su JH et al. THOMAS. <em>NeuroImage</em>. 2019.&#160;<a class="footnote-backref" href="#fnref:su2019" title="Jump back to footnote 19 in the text">&#8617;</a></p>
+</li>
+<li id="fn:piper2026">
+<p>Piper RJ et al. <em>Epilepsia</em>. 2026;67:1901–1915.&#160;<a class="footnote-backref" href="#fnref:piper2026" title="Jump back to footnote 20 in the text">&#8617;</a><a class="footnote-backref" href="#fnref2:piper2026" title="Jump back to footnote 20 in the text">&#8617;</a></p>
+</li>
+<li id="fn:schaefer2018">
+<p>Schaefer A et al. <em>Cereb Cortex</em>. 2018;28:3095–3114.&#160;<a class="footnote-backref" href="#fnref:schaefer2018" title="Jump back to footnote 21 in the text">&#8617;</a></p>
+</li>
+<li id="fn:glasser2016">
+<p>Glasser MF et al. <em>Nature</em>. 2016;536:171–178.&#160;<a class="footnote-backref" href="#fnref:glasser2016" title="Jump back to footnote 22 in the text">&#8617;</a></p>
+</li>
+<li id="fn:smith2011">
+<p>Smith SM et al. <em>NeuroImage</em>. 2011;54:875–891.&#160;<a class="footnote-backref" href="#fnref:smith2011" title="Jump back to footnote 23 in the text">&#8617;</a></p>
+</li>
+<li id="fn:power2011">
+<p>Power JD et al. <em>NeuroImage</em>. 2012;59:2142–2154.&#160;<a class="footnote-backref" href="#fnref:power2011" title="Jump back to footnote 24 in the text">&#8617;</a></p>
+</li>
+<li id="fn:vanwijk2010">
+<p>van Wijk BCM, Stam CJ, Daffertshofer A. <em>PLoS One</em>. 2010;5:e13701.&#160;<a class="footnote-backref" href="#fnref:vanwijk2010" title="Jump back to footnote 25 in the text">&#8617;</a></p>
+</li>
+<li id="fn:zalesky2010nbs">
+<p>Zalesky A, Fornito A, Bullmore ET. <em>NeuroImage</em>. 2010;53:1197–1207.&#160;<a class="footnote-backref" href="#fnref:zalesky2010nbs" title="Jump back to footnote 26 in the text">&#8617;</a></p>
+</li>
+<li id="fn:bernhardt2015">
+<p>Bernhardt BC, Bonilha L, Gross DW. <em>Epilepsia</em>. 2015;56:1837–1846.&#160;<a class="footnote-backref" href="#fnref:bernhardt2015" title="Jump back to footnote 27 in the text">&#8617;</a></p>
+</li>
+</ol>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../graphs/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Graph theory primer">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Graph theory primer
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../strength/" class="md-footer__link md-footer__link--next" aria-label="Next: Node strength">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Node strength
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      MIT license · nodestrength · Philbert Ndagijimana · phindagijimana@gmail.com
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/phindagijimana/dwi-AI" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://hub.docker.com/r/phindagijimana321/nodestrength" target="_blank" rel="noopener" title="hub.docker.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M349.9 236.3h-66.1v-59.4h66.1zm0-204.3h-66.1v60.7h66.1zm78.2 144.8H362v59.4h66.1zm-156.3-72.1h-66.1v60.1h66.1zm78.1 0h-66.1v60.1h66.1zm276.8 100c-14.4-9.7-47.6-13.2-73.1-8.4-3.3-24-16.7-44.9-41.1-63.7l-14-9.3-9.3 14c-18.4 27.8-23.4 73.6-3.7 103.8-8.7 4.7-25.8 11.1-48.4 10.7H2.4c-8.7 50.8 5.8 116.8 44 162.1 37.1 43.9 92.7 66.2 165.4 66.2 157.4 0 273.9-72.5 328.4-204.2 21.4.4 67.6.1 91.3-45.2 1.5-2.5 6.6-13.2 8.5-17.1zm-511.1-27.9h-66v59.4h66.1v-59.4zm78.1 0h-66.1v59.4h66.1zm78.1 0h-66.1v59.4h66.1zm-78.1-72.1h-66.1v60.1h66.1z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:phindagijimana@gmail.com" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4l208 156a48 48 0 0 0 57.6 0l208-156c12.1-9.1 19.2-23.3 19.2-38.4 0-26.5-21.5-48-48-48zM0 196v188c0 35.3 28.7 64 64 64h384c35.3 0 64-28.7 64-64V196L313.6 344.8c-34.1 25.6-81.1 25.6-115.2 0z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+        <script src="../../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

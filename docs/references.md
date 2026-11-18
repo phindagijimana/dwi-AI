@@ -44,6 +44,48 @@ Watts DJ, Strogatz SH. Collective dynamics of ‘small-world’ networks. *Natur
 
 Zalesky A, Fornito A, Harding IH, et al. Whole-brain anatomical networks: does the choice of nodes matter? *NeuroImage*. 2010;50(3):970–983.
 
+Barabási A-L, Albert R. Emergence of scaling in random networks. *Science*. 1999;286:509–512.
+
+Battiston F, Cencetti G, Iacopini I, et al. Networks beyond pairwise interactions: structure and dynamics. *Phys Rep*. 2020;874:1–92.
+
+Betzel RF, Avena-Koenigsberger A, Goñi J, et al. Generative models of the human connectome. *NeuroImage*. 2016;124:1054–1064.
+
+Blondel VD, Guillaume J-L, Lambiotte R, Lefebvre E. Fast unfolding of communities in large networks. *J Stat Mech*. 2008;2008:P10008.
+
+Broido AD, Clauset A. Scale-free networks are rare. *Nat Commun*. 2019;10:1017.
+
+Bullmore E, Sporns O. The economy of brain network organization. *Nat Rev Neurosci*. 2012;13:336–349.
+
+Clauset A, Shalizi CR, Newman MEJ. Power-law distributions in empirical data. *SIAM Rev*. 2009;51:661–703.
+
+Fortunato S, Barthélemy M. Resolution limit in community detection. *Proc Natl Acad Sci USA*. 2007;104:36–41.
+
+Freeman LC. A set of measures of centrality based on betweenness. *Sociometry*. 1977;40:35–41.
+
+Guimerà R, Nunes Amaral LA. Functional cartography of complex metabolic networks. *Nature*. 2005;433:895–900.
+
+Humphries MD, Gurney K. Network ‘small-world-ness’: a quantitative method for determining canonical network equivalence. *PLoS One*. 2008;3:e0002051.
+
+Maslov S, Sneppen K. Specificity and stability in topology of protein networks. *Science*. 2002;296:910–913.
+
+Meunier D, Lambiotte R, Bullmore ET. Modular and hierarchically modular organization of brain networks. *Front Neurosci*. 2010;4:200.
+
+Milo R, Shen-Orr S, Itzkovitz S, Kashtan N, Chklovskii D, Alon U. Network motifs: simple building blocks of complex networks. *Science*. 2002;298:824–827.
+
+Newman MEJ. Assortative mixing in networks. *Phys Rev Lett*. 2002;89:208701.
+
+Opsahl T, Agneessens F, Skvoretz J. Node centrality in weighted networks: generalizing degree and shortest paths. *Soc Networks*. 2010;32:245–251.
+
+Rosvall M, Bergstrom CT. Maps of random walks on complex networks reveal community structure. *Proc Natl Acad Sci USA*. 2008;105:1118–1123.
+
+Stam CJ, Tewarie P, Van Dellen E, van Straaten ECW, Hillebrand A, Van Mieghem P. The trees and the forest: characterization of complex brain networks with minimum spanning trees. *Int J Psychophysiol*. 2014;92:129–138.
+
+Telesford QK, Joyce KE, Hayasaka S, Burdette JH, Laurienti PJ. The ubiquity of small-world networks. *Brain Connect*. 2011;1:367–375.
+
+Traag VA, Waltman L, van Eck NJ. From Louvain to Leiden: guaranteeing well-connected communities. *Sci Rep*. 2019;9:5233.
+
+van Wijk BCM, Stam CJ, Daffertshofer A. Comparing brain networks of different size and connectivity density using graph theory. *PLoS One*. 2010;5:e13701.
+
 Zalesky A, Fornito A, Bullmore ET. Network-based statistic: identifying differences in brain networks. *NeuroImage*. 2010;53(4):1197–1207.
 
 ## Diffusion MRI, tractography, software

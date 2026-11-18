@@ -59,11 +59,14 @@ See [Running](usage.md) and the [command-line reference](cli.md).
 
 ## Start here if you are new to the science
 
+Each Science page is a full cited chapter, not a glossary line.
+
 1. [Why graphs for the brain](science/networks.md)
-2. [Graph theory primer](science/graphs.md)
-3. [Connectomics](science/connectomics.md)
+2. [Graph theory primer](science/graphs.md) — degree, paths, clustering, modules, small-world, centrality, nulls, spectra
+3. [Connectomics](science/connectomics.md) — how \(W\) is built
 4. [Node strength](science/strength.md) — the measure this package actually computes
-5. [Literature guide](science/literature.md)
+5. [Asymmetry](science/asymmetry.md) · [Other methods](science/other-methods.md) · [Beyond this tool](science/beyond.md) · [Statistics](science/statistics.md)
+6. [Literature guide](science/literature.md)
 
 ## Citation
 

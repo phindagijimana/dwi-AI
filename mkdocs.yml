@@ -1,0 +1,102 @@
+site_name: nodestrength
+site_description: Node strength, asymmetry, and connectomics analysis for diffusion MRI
+site_url: https://phindagijimana.github.io/dwi-AI/
+repo_url: https://github.com/phindagijimana/dwi-AI
+repo_name: phindagijimana/dwi-AI
+edit_uri: edit/main/docs/
+copyright: MIT license · nodestrength
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-night
+        name: Dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra_javascript:
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/phindagijimana/dwi-AI
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/phindagijimana321/nodestrength
+
+nav:
+  - Home: index.md
+  - Installation:
+      - Python package: installation.md
+      - Containers: container.md
+  - Usage:
+      - Preparing data: preparing.md
+      - Running nodestrength: usage.md
+      - Command-line reference: cli.md
+      - Outputs: outputs.md
+      - Pipeline details: pipeline.md
+  - Science:
+      - Why graphs for the brain: science/networks.md
+      - Graph theory primer: science/graphs.md
+      - Connectomics: science/connectomics.md
+      - Node strength: science/strength.md
+      - Asymmetry indices: science/asymmetry.md
+      - Other connectomic methods: science/other-methods.md
+      - Graph theory beyond this tool: science/beyond.md
+      - Statistics we actually run: science/statistics.md
+      - Literature guide: science/literature.md
+  - About:
+      - About this project: about.md
+      - Contributing and GitHub: contributing.md
+      - References: references.md

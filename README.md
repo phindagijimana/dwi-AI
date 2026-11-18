@@ -1,5 +1,7 @@
 # dwi-AI
 
+**Documentation site (nodestrength):** [https://phindagijimana.github.io/dwi-AI/](https://phindagijimana.github.io/dwi-AI/) · **Source:** [github.com/phindagijimana/dwi-AI](https://github.com/phindagijimana/dwi-AI)
+
 Node strength and asymmetry-index pipeline for diffusion MRI connectomes.
 
 Implementation of the analysis pipeline in:

@@ -46,7 +46,15 @@ y = X\beta + \varepsilon, \qquad \hat\beta = (X^\top X)^{+} X^\top y, \qquad z =
 
 where \(X\) has an intercept, continuous covariates as-is, and categorical covariates one-hot with `drop_first=True`. Residual SD uses \(\mathrm{ddof}=p\). Fits are **per (nucleus, side)** so right-sided patients are z-scored against right-sided control residuals.
 
-Piper’s text is GLM/GAM-style. A **penalised spline GAM** (`pygam`, `mgcv`) is a different estimator. If you need splines, fit them outside this CLI and say so. Related literature: Marquand et al. 2016, 2019 normative modelling in psychiatry[^marquand2016]; GAMLSS; Bayesian linear models in large biobanks.
+The broader **normative modelling** literature (Marquand et al. 2016, 2019[^marquand2016]; GAMLSS) writes the same idea as a conditional distribution of the response given covariates \(x\):
+
+\[
+y \mid x \sim f\bigl(\hat{\mu}(x),\; \hat{\sigma}(x),\; \ldots\bigr)
+\]
+
+Here \(\hat{\mu}(x)\) is the estimated mean (or location) at age/sex/motion/global strength, \(\hat{\sigma}(x)\) is an optional scale function, and \(f\) is a named family (Gaussian for OLS; more flexible in GAMLSS). A patient z-score is then \((y-\hat{\mu}(x))/\hat{\sigma}(x)\). Piper’s GLM is the Gaussian, homoscedastic case: \(\hat{\sigma}\) does not depend on \(x\), and \(\hat{\mu}(x)=x^\top\hat\beta\).
+
+A **penalised spline GAM** (`pygam`, `mgcv`) is a different estimator for \(\mu(x)\). If you need splines, fit them outside this CLI and say so. Bayesian linear models in large biobanks are another option in that same family.
 
 `nodestrength fit-normative --controls controls.csv --out model.pkl` pickles the OLS fits. `dkt-ai-cohort --participants` can fit from the control rows (`--control-group`) or load `--normative-model`.
 

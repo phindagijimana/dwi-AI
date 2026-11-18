@@ -1,7 +1,9 @@
 # About this project
 
-**nodestrength** is a Python analysis layer for **already reconstructed** structural connectomes. It implements the node-strength and laterality design of Piper et al., *Epilepsia* (2026)[^piper2026], and is maintained at:
+**nodestrength** is a Python analysis layer for **already reconstructed** structural connectomes. It implements the node-strength and laterality design of Piper et al., *Epilepsia* (2026)[^piper2026], and is maintained by **Philbert Ndagijimana**.
 
+- Author: Philbert Ndagijimana
+- Contact: [phindagijimana@gmail.com](mailto:phindagijimana@gmail.com)
 - Documentation: [phindagijimana.github.io/dwi-AI](https://phindagijimana.github.io/dwi-AI/)
 - Source: [github.com/phindagijimana/dwi-AI](https://github.com/phindagijimana/dwi-AI)
 - Container: `docker.io/phindagijimana321/nodestrength`
@@ -26,6 +28,8 @@ Research scripts under `research/` in the GitHub repository apply the same stren
 
 ## Licence and citation
 
-MIT licence (see `LICENSE` in the repository). Cite Piper et al. 2026 and Rubinov & Sporns 2010; cite MRtrix3 / QSIPrep / the atlas when those were used. See [Literature](science/literature.md) §8.
+MIT licence (see `LICENSE` in the repository).
+
+Cite the software as **Ndagijimana P., 2026** (contact [phindagijimana@gmail.com](mailto:phindagijimana@gmail.com)), plus Piper et al. 2026 and Rubinov & Sporns 2010; cite MRtrix3 / QSIPrep / the atlas when those were used. Ready-to-paste APA, BibTeX, and `CITATION.cff`: [Citing and contact](citing.md). See also [Literature](science/literature.md) §8.
 
 [^piper2026]: Piper RJ, Feng X, Chari A, Owen TW, Assendorp N, Brkic M, et al. Thalamocortical structural connectivity in children with focal epilepsy: A diffusion MRI, case–control study. *Epilepsia*. 2026;67(4):1901–1915. [doi:10.1002/epi.70099](https://doi.org/10.1002/epi.70099)

@@ -38,7 +38,7 @@ Pages live in `docs/`; navigation is `mkdocs.yml`. After merge to `main`, the `d
 ```bash
 git clone https://github.com/phindagijimana/dwi-AI.git
 cd dwi-AI
-pip install -e ".[dev,report]"
+pip install -e ".[dev,bct]"
 pytest
 ```
 
@@ -54,4 +54,6 @@ pytest
 
 ## Contact
 
-Use GitHub issues for software. For the Piper et al. 2026 clinical study, cite the paper rather than filing dataset requests here.
+**Philbert Ndagijimana** — [phindagijimana@gmail.com](mailto:phindagijimana@gmail.com)
+
+Use that address or [GitHub issues](https://github.com/phindagijimana/dwi-AI/issues) for the software, documentation, and containers. For the Piper et al. 2026 clinical study, cite the paper rather than filing dataset requests here. How to cite: [Citing and contact](citing.md).

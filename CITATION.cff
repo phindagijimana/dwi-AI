@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: If you use nodestrength, please cite this software and the methods paper listed below.
+title: "nodestrength: node strength and hemispheric asymmetry analysis for diffusion MRI connectomes"
+version: 0.1.0
+date-released: "2026-11-17"
+license: MIT
+type: software
+url: https://phindagijimana.github.io/dwi-AI/
+repository-code: https://github.com/phindagijimana/dwi-AI
+authors:
+  - family-names: Ndagijimana
+    given-names: Philbert
+    email: phindagijimana@gmail.com
+contact:
+  - family-names: Ndagijimana
+    given-names: Philbert
+    email: phindagijimana@gmail.com
+    website: https://github.com/phindagijimana/dwi-AI
+preferred-citation:
+  type: software
+  title: "nodestrength: node strength and hemispheric asymmetry analysis for diffusion MRI connectomes"
+  authors:
+    - family-names: Ndagijimana
+      given-names: Philbert
+      email: phindagijimana@gmail.com
+  year: 2026
+  url: https://phindagijimana.github.io/dwi-AI/
+  repository-code: https://github.com/phindagijimana/dwi-AI
+  contact:
+    - email: phindagijimana@gmail.com
+      family-names: Ndagijimana
+      given-names: Philbert
+references:
+  - type: article
+    title: "Thalamocortical structural connectivity in children with focal epilepsy: A diffusion MRI, case–control study"
+    authors:
+      - family-names: Piper
+        given-names: R. J.
+    year: 2026
+    journal: Epilepsia
+    volume: "67"
+    issue: "4"
+    pages: 1901-1915
+    doi: 10.1002/epi.70099

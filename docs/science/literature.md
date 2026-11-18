@@ -106,7 +106,7 @@ Minimum set for a paper that ran QSIPrep → MRtrix/QSIRecon → `nodestrength`:
 4. Atlas paper (Desikan 2006 or Cammoun 2012 or THOMAS)
 5. Rubinov & Sporns 2010 (strength)
 6. Piper et al. 2026 (analysis design)
-7. This repository / site: [github.com/phindagijimana/dwi-AI](https://github.com/phindagijimana/dwi-AI)
+7. **Ndagijimana P. (2026).** *nodestrength* [computer software]. [github.com/phindagijimana/dwi-AI](https://github.com/phindagijimana/dwi-AI). Contact: [phindagijimana@gmail.com](mailto:phindagijimana@gmail.com). See [Citing](../citing.md).
 
 ## 9. Suggested four-week reading plan
 

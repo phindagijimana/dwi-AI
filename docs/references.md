@@ -2,6 +2,10 @@
 
 Selected bibliography cited in the Science pages. URLs are DOI links where possible. This is a teaching list, not an exhaustive systematic review.
 
+## Software (this project)
+
+Ndagijimana P. *nodestrength: node strength and hemispheric asymmetry analysis for diffusion MRI connectomes* [computer software]. 2026. [https://github.com/phindagijimana/dwi-AI](https://github.com/phindagijimana/dwi-AI). Documentation: [https://phindagijimana.github.io/dwi-AI/](https://phindagijimana.github.io/dwi-AI/). Contact: [phindagijimana@gmail.com](mailto:phindagijimana@gmail.com).
+
 ## Network neuroscience and graph measures
 
 Atasoy S, Donnelly I, Pearson J. Human brain networks function in connectome-specific harmonic waves. *Nat Commun*. 2016;7:10340. [doi:10.1038/ncomms10340](https://doi.org/10.1038/ncomms10340)

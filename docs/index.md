@@ -14,7 +14,7 @@ It implements the analysis layer of Piper et al., *Epilepsia* (2026)[^piper2026]
 
 This site is modelled on the layout of [QSIPrep](https://qsiprep.readthedocs.io/): installation, data, CLI, outputs, then the science. The **Science** section is a reading path for people new to networks, connectomics, and graph theory in neuroscience, with citations into the literature.
 
-**Source:** [github.com/phindagijimana/dwi-AI](https://github.com/phindagijimana/dwi-AI)
+**Author:** Philbert Ndagijimana · **Contact:** [phindagijimana@gmail.com](mailto:phindagijimana@gmail.com) · **Source:** [github.com/phindagijimana/dwi-AI](https://github.com/phindagijimana/dwi-AI)
 
 ## What it is — and is not
 
@@ -67,7 +67,9 @@ See [Running](usage.md) and the [command-line reference](cli.md).
 
 ## Citation
 
-If you use this analysis, cite the methods paper and BCT:
+If you use **nodestrength**, cite the software and the methods paper. Full BibTeX: [Citing and contact](citing.md).
+
+> Ndagijimana P. *nodestrength: node strength and hemispheric asymmetry analysis for diffusion MRI connectomes* [computer software]. 2026. [https://github.com/phindagijimana/dwi-AI](https://github.com/phindagijimana/dwi-AI). Contact: [phindagijimana@gmail.com](mailto:phindagijimana@gmail.com).
 
 > Piper RJ, Feng X, Chari A, et al. Thalamocortical structural connectivity in children with focal epilepsy: A diffusion MRI, case–control study. *Epilepsia*. 2026;67(4):1901–1915. [doi:10.1002/epi.70099](https://doi.org/10.1002/epi.70099)
 

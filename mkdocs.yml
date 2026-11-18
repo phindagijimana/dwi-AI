@@ -4,7 +4,7 @@ site_url: https://phindagijimana.github.io/dwi-AI/
 repo_url: https://github.com/phindagijimana/dwi-AI
 repo_name: phindagijimana/dwi-AI
 edit_uri: edit/main/docs/
-copyright: MIT license · nodestrength
+copyright: MIT license · nodestrength · Philbert Ndagijimana · phindagijimana@gmail.com
 
 theme:
   name: material
@@ -74,6 +74,8 @@ extra:
       link: https://github.com/phindagijimana/dwi-AI
     - icon: fontawesome/brands/docker
       link: https://hub.docker.com/r/phindagijimana321/nodestrength
+    - icon: fontawesome/solid/envelope
+      link: mailto:phindagijimana@gmail.com
 
 nav:
   - Home: index.md
@@ -98,5 +100,6 @@ nav:
       - Literature guide: science/literature.md
   - About:
       - About this project: about.md
+      - Citing and contact: citing.md
       - Contributing and GitHub: contributing.md
       - References: references.md

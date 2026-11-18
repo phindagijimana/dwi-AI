@@ -2,9 +2,13 @@
 
 **Documentation site (nodestrength):** [https://phindagijimana.github.io/dwi-AI/](https://phindagijimana.github.io/dwi-AI/) · **Source:** [github.com/phindagijimana/dwi-AI](https://github.com/phindagijimana/dwi-AI)
 
+**Author:** Philbert Ndagijimana · **Contact:** [phindagijimana@gmail.com](mailto:phindagijimana@gmail.com)
+
 Node strength and asymmetry-index pipeline for diffusion MRI connectomes.
 
-Implementation of the analysis pipeline in:
+Cite the software and the methods paper:
+
+> Ndagijimana P. *nodestrength: node strength and hemispheric asymmetry analysis for diffusion MRI connectomes* [computer software]. 2026. https://github.com/phindagijimana/dwi-AI. Contact: phindagijimana@gmail.com.
 
 > Piper RJ, Feng X, …, Taylor PN. *Thalamocortical structural connectivity in children with focal epilepsy: A diffusion MRI, case–control study.* **Epilepsia** 67(4):1901–1915 (2026). DOI: [10.1002/epi.70099](https://doi.org/10.1002/epi.70099).
 
